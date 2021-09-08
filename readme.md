@@ -1,6 +1,7 @@
 # Stregsystemet-CLI
 
 This repository is the UNOFFICIAL Stregsystemet CLI, to buy things in Stregsystemet, at AAU.
+As this is the unofficial Stregsystemet CLI, you use the CLI at your own risk, and there will be provided no support from FIT (#FritFit). Instead contact the developer.
 
 ## Requirements
 
