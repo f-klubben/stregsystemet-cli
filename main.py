@@ -105,8 +105,8 @@ def sale(user, itm, count=1):
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
 
         global balance
-        balance = re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1)
-        print('Du har nu', balance, 'stregdollars')
+        balance = str(float(balance) - (float(ware[0][2].replace('kr','').strip()) * float(count)))
+        print('Du har nu', balance, 'stregdollars tilbage')
     else:
         print('''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
