@@ -8,8 +8,8 @@ import urllib3
 
 urllib3.disable_warnings()
 
-url = 'https://stregsystem.fklub.dk'
-room = '10'
+url = 'http://localhost:8000'
+room = '1'
 exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
@@ -103,7 +103,7 @@ def sale(user, itm, count=1):
     elif 'STREGFORBUD!' not in sale.text:
         ware = [x for x in wares if x[0] == itm]
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
-
+        
         global balance
         balance = str(float(balance) - (float(ware[0][2].replace('kr','').strip()) * float(count)))
         print('Du har nu', balance, 'stregdollars tilbage')
@@ -190,7 +190,14 @@ def main():
             no_info_buy()
 
     else:
-        sale(args.user,args.item,args.count)
+        if test_user(args.user):
+            sale(args.user,args.item,args.count)
+        else:
+            print('''Det var sært, %user%.
+Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
+Måske tastede du forkert?
+Hvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk.'''.replace('%user%', user))
+
 
 if __name__ == '__main__':
     main()
