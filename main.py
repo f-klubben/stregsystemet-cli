@@ -8,8 +8,8 @@ import urllib3
 
 urllib3.disable_warnings()
 
-url = 'http://localhost:8000'
-room = '1'
+url = 'https://stregsystem.fklub.dk'
+room = '10'
 exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
@@ -58,6 +58,11 @@ def print_wares(wares):
 def test_user(user):
     session = requests.Session()
     r = session.get(f"{url}/{room}/", verify=False)
+    if r.status_code != 200:
+        print('Noget gik galt', r.status_code)
+        raise SystemExit
+
+
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"',r.text)
     json = {
         'quickbuy': f"{user}",
@@ -84,8 +89,16 @@ def test_user(user):
 
 
 def sale(user, itm, count=1):
+    if int(count) <= 0:
+        print('Du kan ikke købe negative mængder af varer.')
+        return
+
     session = requests.Session()
     r = session.get(f"{url}/{room}/", verify=False)
+    if r.status_code != 200:
+        print('Noget gik galt', r.status_code)
+        raise SystemExit
+
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
     json = {
         'quickbuy': f"{user} {itm}:{count}",
@@ -101,7 +114,22 @@ def sale(user, itm, count=1):
         print("Du har ikke købt din vare. Prøv igen", sale.status_code)
         raise SystemExit
     elif 'STREGFORBUD!' not in sale.text:
+        if itm.contains(':'):
+            if is_int(itm.split(':')[1]):
+                count = itm.split(':')[1]
+                if int(count) <= 0:
+                    print('Du kan ikke købe negative mængder af varer.')
+                    return
+                itm = itm.split(':')[0]
+            else:
+                print('Du har angivet tekst hvor du skal angive en mængde')
+                return
+
         ware = [x for x in wares if x[0] == itm]
+        if not len(ware):
+            print(f"Der findes ikke nogen varer med id {itm}.")
+            return
+
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
         
         global balance
@@ -181,6 +209,11 @@ def no_info_buy():
 
 def main():
     args=parse(sys.argv[1::])
+
+    if not is_int(args.count):
+        print('Mængder skal være heltal')
+        return
+
     if args.user == None or args.item == None:
         if args.user != None:
             user_buy(args.user)
