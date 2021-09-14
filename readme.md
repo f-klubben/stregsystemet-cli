@@ -7,10 +7,18 @@ As this is the unofficial Stregsystemet CLI, you use the CLI at your own risk, a
 
 The CLI is a python script that relies on no external dependendencies. The script is tested with python 3.9
 
+## Installation
+
+To install the script, simply cURL or wget it from GitHub
+
+```bash
+wget https://raw.githubusercontent.com/Zaph-x/Stregsystemet-CLI/master/main.py -o sts
+```
+
 ## Usage
 
 ```bash
-$ ./main.py -h
+$ sts -h
 usage: sts [-h] [-u [USER]] [-i [ITEM]] [-c [COUNT]] [-b]
 
 optional arguments:
