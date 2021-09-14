@@ -1,8 +1,8 @@
 # Stregsystemet-CLI
 
 This repository is the Stregsystemet CLI, to buy things in Stregsystemet, at AAU.
-As this is the unofficial Stregsystemet CLI, you use the CLI at your own risk, and there will be provided no support from FIT (#FritFit). Instead contact the developer.
-
+Use of this cli-tool is *at your own risk* and there will be no support guarranteed. Either try to resolve the issue yourself and submit a PR or write an issue.
+ 
 ## Requirements
 
 The CLI is a python script that relies on no external dependendencies. The script is tested with python 3.9
@@ -30,8 +30,7 @@ optional arguments:
   -c [COUNT], --count [COUNT]
                         Specifies the amount of items you wish to buy
   -b, --balance         Output only stregdollar balance
-  ```
-
+```
 If either the user or item arguments or no arguments at all are specified the CLI will enter interactive mode.
 
 The script also keeps track of your balance and what items are available in Stregsystemet.
