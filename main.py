@@ -155,7 +155,7 @@ def parse(args):
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
     parser.add_argument('-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy')
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
-    parser.add_argument('product', type=int, nargs='?', help="Specifies the product to buy")
+    parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
 
