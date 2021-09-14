@@ -55,7 +55,7 @@ def print_wares(wares):
         print('{:<8} {:<50} {:<10}'.format(ware[0],ware[1],ware[2]))
 
 
-def test_user(user):
+def test_user(user, only_balance=False):
     session = requests.Session()
     r = session.get(f"{url}/{room}/", verify=False)
     if r.status_code != 200:
@@ -147,6 +147,7 @@ def parse(args):
     parser.add_argument('-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username')
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
     parser.add_argument('-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy')
+    parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
 
     return parser.parse_args(args)
 
@@ -212,6 +213,11 @@ def main():
 
     if not is_int(args.count):
         print('Mængder skal være heltal')
+        return
+
+    if args.balance and args.user:
+        test_user(args.user)
+        print(balance)
         return
 
     if args.user == None or args.item == None:
