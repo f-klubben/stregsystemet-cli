@@ -20,8 +20,7 @@ else:
 exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
-
-
+    
 def is_int(value):
     try:
         int(value)
@@ -31,8 +30,13 @@ def is_int(value):
 
 
 def get_wares():
-    session = requests.Session()
-    r = session.get(f"{url}/{room}/", verify=False)
+    try:
+        session = requests.Session()
+        r = session.get(f"{url}/{room}/", verify=False)
+    except:
+        print('Could not fetch wares from Stregsystement...')
+        raise SystemExit(1)
+
     body = r.text
     item_id_list = re.findall(r'<td>(\d+)</td>', body)
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
@@ -281,4 +285,7 @@ Hvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk.'''.r
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        raise SystemExit(0)
