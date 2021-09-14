@@ -1,7 +1,7 @@
 # Stregsystemet-CLI
 
 This repository is the Stregsystemet CLI, to buy things in Stregsystemet, at AAU.
-Use of this cli-tool is *at your own risk* and there will be no support guarranteed. Either try to resolve the issue yourself and submit a PR or write an issue.
+Use of this cli-tool is **at your own risk** and there will be no support guarranteed. Either try to resolve the issue yourself and submit a PR or write an issue.
  
 ## Requirements
 
