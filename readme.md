@@ -12,7 +12,7 @@ The CLI is a python script that relies on no external dependendencies. The scrip
 To install the script, simply cURL or wget it from GitHub
 
 ```bash
-wget https://raw.githubusercontent.com/Zaph-x/Stregsystemet-CLI/master/main.py -o sts
+wget https://raw.githubusercontent.com/Zaph-x/Stregsystemet-CLI/master/main.py -O sts
 ```
 
 ## Usage
