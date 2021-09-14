@@ -55,7 +55,7 @@ def print_wares(wares):
         print('{:<8} {:<50} {:<10}'.format(ware[0],ware[1],ware[2]))
 
 
-def test_user(user, only_balance=False):
+def test_user(user):
     session = requests.Session()
     r = session.get(f"{url}/{room}/", verify=False)
     if r.status_code != 200:
