@@ -4,12 +4,19 @@ import requests
 import re
 import argparse
 import sys
+import os
 import urllib3
 
 urllib3.disable_warnings()
 
-url = 'https://stregsystem.fklub.dk'
-room = '10'
+if sys.argv[0] == './main.py':
+    url = 'http://localhost:8000'
+    room = '1'
+else:
+    url = 'https://stregsystem.fklub.dk'
+    room = '10'
+
+
 exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
@@ -30,7 +37,7 @@ def get_wares():
     item_id_list = re.findall(r'<td>(\d+)</td>', body)
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+ kr)</td>', body)
-    
+
     # pprint(len(item_id_list))
     # pprint(len(item_name_list))
     item_name_list = [ x for x in item_name_list if not is_int(x) ]
@@ -114,7 +121,7 @@ def sale(user, itm, count=1):
         print("Du har ikke købt din vare. Prøv igen", sale.status_code)
         raise SystemExit
     elif 'STREGFORBUD!' not in sale.text:
-        if itm.contains(':'):
+        if ':' in itm:
             if is_int(itm.split(':')[1]):
                 count = itm.split(':')[1]
                 if int(count) <= 0:
@@ -131,7 +138,7 @@ def sale(user, itm, count=1):
             return
 
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
-        
+
         global balance
         balance = str(float(balance) - (float(ware[0][2].replace('kr','').strip()) * float(count)))
         print('Du har nu', balance, 'stregdollars tilbage')
@@ -150,14 +157,29 @@ def parse(args):
 
     return parser.parse_args(args)
 
-def get_item(ware_ids):
+def get_item(ware_ids):    
+    count = 1
     item_id = input('Id> ')
+    if item_id.lower() in exit_words:
+        return 'exit',0
+     
+    if ':' in item_id:
+        if is_int(item_id.split(':')[1]):
+            count = item_id.split(':')[1]
+            if int(count) <= 0:
+                print('Du kan ikke købe negative mængder af varer.')
+                return
+            item_id = item_id.split(':')[0]
+        else:
+            print('Du har angivet tekst hvor du skal angive en mængde')
+            return
+
     while not is_int(item_id) or item_id not in ware_ids:
         if item_id.lower() in exit_words:
-            return 'exit'
+            return 'exit',0
         print(f"'{item_id}' is not a valid item")
         item_id = input('Id> ')
-    return item_id
+    return item_id, count
 
 
 def user_buy(user):
@@ -170,10 +192,10 @@ def user_buy(user):
         print_wares(wares)
         print('')
         while True:
-            item = get_item([x[0] for x in wares])
+            item, count = get_item([x[0] for x in wares])
             if item in exit_words:
                 raise SystemExit
-            sale(user, item)
+            sale(user, item, count)
     else:
         print('''Det var sært, %user%.
 Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
@@ -185,30 +207,50 @@ def userless_buy(item, count):
     print('Du er ved at købe', count, ware[0][1], 'til', ware[0][2], 'stykket')
     print("Du kan skrive 'exit' for at annullere.")
     user = input('Hvad er dit brugernavn? ')
-    
+
     while not test_user(user):
         if user.lower() in exit_words:
             raise SystemExit
         print(f"'{user}' is not a valid user")
         user = input('Hvad er dit brugernavn? ')
-    
+
     sale(user, item, count)
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
     user = input('Hvad er dit brugernavn? ')
-    
+
     while not test_user(user):
         if user.lower() in exit_words:
             raise SystemExit
         print(f"'{user}' is not a valid user")
         user = input('Hvad er dit brugernavn? ')
-    
+
     user_buy(user)
 
+def get_saved_user() -> str:
+    path=''
+    if os.path.exists(os.path.expanduser('~/.config/sts/.sts')):
+        path = os.path.expanduser('~/.config/sts/.sts')
+    elif os.path.exists(os.path.expanduser('~/.sts')):
+        path = os.path.expanduser('~/.sts')
+    else:
+        path = None
+
+    if path != None:
+        with open(os.path.expanduser(path)) as f:
+            line = f.readline()
+            matches = re.search('user=(.+)', line)
+            if not not matches.group(1):
+                return matches.group(1)
+
+    return None
 
 def main():
     args=parse(sys.argv[1::])
+
+    if args.user is None:
+        args.user = get_saved_user()
 
     if not is_int(args.count):
         print('Mængder skal være heltal')
