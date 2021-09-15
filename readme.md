@@ -1,8 +1,8 @@
 # Stregsystemet-CLI
 
-This repository is the UNOFFICIAL Stregsystemet CLI, to buy things in Stregsystemet, at AAU.
-As this is the unofficial Stregsystemet CLI, you use the CLI at your own risk, and there will be provided no support from FIT (#FritFit). Instead contact the developer.
-
+This repository is the Stregsystemet CLI, to buy things in Stregsystemet, at AAU.
+Use of this cli-tool is **at your own risk** and there will be no support guarranteed. Either try to resolve the issue yourself and submit a PR or write an issue.
+ 
 ## Requirements
 
 The CLI is a python script that relies on no external dependendencies. The script is tested with python 3.9
@@ -12,7 +12,7 @@ The CLI is a python script that relies on no external dependendencies. The scrip
 To install the script, simply cURL or wget it from GitHub
 
 ```bash
-wget https://raw.githubusercontent.com/Zaph-x/Stregsystemet-CLI/master/main.py -O sts
+wget https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py -O sts
 ```
 
 ## Usage
@@ -33,6 +33,7 @@ optional arguments:
   -c [COUNT], --count [COUNT]
                         Specifies the amount of items you wish to buy
   -b, --balance         Output only stregdollar balance
+
   -l, --history         Shows your recent purchases
 ```
 
