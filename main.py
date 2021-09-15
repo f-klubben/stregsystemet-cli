@@ -20,6 +20,7 @@ else:
 exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
+user_id = ''
     
 def is_int(value):
     try:
@@ -96,7 +97,41 @@ def test_user(user):
 
     global balance
     balance = re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1)
+    global user_id
+    user_id = re.search(r'\<a href="/'+room+'/user/(\d+)"', sale.text).group(1)
     return True
+
+
+def print_history(wares):
+    print('{:<29} {:<40}  {:<10}'.format('Date','Item','Price'))
+    print('-'*80)
+    for ware in wares:
+        print('{:<29} {:<40}  {:<10}'.format(ware[0],ware[1],ware[2]))
+    
+    print('')
+    print('')
+
+def get_history(user_id):
+    if not user_id: 
+        print('Den angivne bruger har ikke noget ID. Afslutter')
+        raise SystemExit(1)
+    
+    try:
+        session = requests.Session()
+        r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
+    except:
+        print('Kunne ikke oprette forbindelse til Stregsystenet')
+        raise SystemExit(1)
+
+    body = r.text
+    item_date_list = re.findall(r'<td>(\d+\.\s\w+\s\d+\s\d+:\d+)</td>', body)
+    item_name_list = [ x for x in re.findall(r'<td>(.+?)</td>', body) if x not in item_date_list ][0:len(item_date_list)]
+    item_price_list = re.findall(r'<td align="right">(\d+\.\d+)</td>', body)
+    history=[]
+    for x in range(len(item_date_list)):
+        history.append((item_date_list[x], item_name_list[x], f"{item_price_list[x]} kr."))
+    
+    print_history(history)
 
 
 def sale(user, itm, count=1):
@@ -159,6 +194,7 @@ def parse(args):
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
     parser.add_argument('-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy')
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
+    parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -168,7 +204,7 @@ def get_item(ware_ids):
     item_id = input('Id> ')
     if item_id.lower() in exit_words:
         return 'exit',0
-     
+
     if ':' in item_id:
         if is_int(item_id.split(':')[1]):
             count = item_id.split(':')[1]
@@ -183,6 +219,7 @@ def get_item(ware_ids):
     while not is_int(item_id) or item_id not in ware_ids:
         if item_id.lower() in exit_words:
             return 'exit',0
+         
         print(f"'{item_id}' is not a valid item")
         item_id = input('Id> ')
     return item_id, count
@@ -201,6 +238,8 @@ def user_buy(user):
             item, count = get_item([x[0] for x in wares])
             if item in exit_words:
                 raise SystemExit
+            elif item is None:
+                continue
             sale(user, item, count)
     else:
         print('''Det var sært, %user%.
@@ -279,6 +318,11 @@ def main():
         test_user(args.user)
         print(balance)
         return
+    
+    if args.history and args.user:
+        global user_id
+        test_user(args.user)
+        get_history(user_id)
 
     if args.user == None or args.item == None:
         if args.user != None:
