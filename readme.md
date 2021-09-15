@@ -19,7 +19,10 @@ wget https://raw.githubusercontent.com/Zaph-x/Stregsystemet-CLI/master/main.py -
 
 ```bash
 $ sts -h
-usage: sts [-h] [-u [USER]] [-i [ITEM]] [-c [COUNT]] [-b]
+usage: sts [-h] [-u [USER]] [-i [ITEM]] [-c [COUNT]] [-b] [-l] [product]
+
+positional arguments:
+  product               Specifies the product to buy
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -30,7 +33,8 @@ optional arguments:
   -c [COUNT], --count [COUNT]
                         Specifies the amount of items you wish to buy
   -b, --balance         Output only stregdollar balance
-  ```
+  -l, --history         Shows your recent purchases
+```
 
 If either the user or item arguments or no arguments at all are specified the CLI will enter interactive mode.
 
