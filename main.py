@@ -35,6 +35,21 @@ SHORTHANDS = {
     'kaffe': 32,
     'sportscola': 1891,
     'abrikos': 1899,
+    'fuzetea': 1879,
+    'kakao': 1882,
+    'cacao': 1882,
+    'kinley': 1893,
+    'monsterkaffe': 1900,
+    'kildevand': 1839,
+    'cider': 1831,
+    'sommersby': 1831,
+    'redbull': 1895,
+    'panta': 1848,
+    'glaspant': 1848,
+    'pantb': 31,
+    'sodapant': 31,
+    'pantc': 1849,
+    'storpant': 1849,
 }
     
 def is_int(value):
