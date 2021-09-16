@@ -21,6 +21,21 @@ exit_words = [':q','exit','quit']
 referer_header={'Referer': url}
 balance = ''
 user_id = ''
+
+SHORTHANDS = {
+    'porter': 42,
+    'øl': 14,
+    'classic': 14,
+    'grøn': 14,
+    'monster': 1837,
+    'ale16': 54,
+    'cocio': 16,
+    'soda': 11,
+    'specialøl': 1848,
+    'kaffe': 32,
+    'sportscola': 1891,
+    'abrikos': 1899,
+}
     
 def is_int(value):
     try:
@@ -43,11 +58,7 @@ def get_wares():
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+ kr)</td>', body)
 
-    # pprint(len(item_id_list))
-    # pprint(len(item_name_list))
     item_name_list = [ x for x in item_name_list if not is_int(x) ]
-    # pprint(item_name_list)
-    # pprint(len(item_price_list))
 
     session.close()
     wares = []
@@ -139,6 +150,10 @@ def sale(user, itm, count=1):
         print('Du kan ikke købe negative mængder af varer.')
         return
 
+    # check for shorthand and replace
+    if itm in SHORTHANDS:
+        itm = str(SHORTHANDS[itm])
+
     session = requests.Session()
     r = session.get(f"{url}/{room}/", verify=False)
     if r.status_code != 200:
@@ -216,7 +231,7 @@ def get_item(ware_ids):
             print('Du har angivet tekst hvor du skal angive en mængde')
             return
 
-    while not is_int(item_id) or item_id not in ware_ids:
+    while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
         if item_id.lower() in exit_words:
             return 'exit',0
          
