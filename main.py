@@ -210,7 +210,7 @@ def sale(user, itm, count=1):
 
         global balance
         balance = str(float(balance) - (float(ware[0][2].replace('kr','').strip()) * float(count)))
-        print(f'Du har nu {balance:.2f} stregdollars tilbage')
+        print(f'Du har nu {float(balance):.2f} stregdollars tilbage')
     else:
         print('''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
@@ -259,7 +259,7 @@ def user_buy(user):
     if test_user(user):
 #        os.system('cls||clear')
         print('Hej,', user)
-        print(f'Du har {balance:.2f} stregdollars')
+        print(f'Du har {float(balance):.2f} stregdollars')
         print('')
         print("Hvad ønsker at købe i Stregsystemet? (Skriv en af", str(exit_words), "for at komme ud af interfacet)")
         print_wares(wares)
@@ -346,7 +346,7 @@ def main():
 
     if args.balance and args.user:
         test_user(args.user)
-        print(f'{balance:.2f}')
+        print(f'{float(balance):.2f}')
         return
     
     if args.history and args.user:
