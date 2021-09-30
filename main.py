@@ -17,9 +17,9 @@ else:
     room = '10'
 
 
-exit_words = [':q','exit','quit']
+exit_words = [':q','exit','quit','q']
 referer_header={'Referer': url}
-balance = ''
+balance = float()
 user_id = ''
 
 SHORTHANDS = {
@@ -122,7 +122,7 @@ def test_user(user):
         return False
 
     global balance
-    balance = re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1)
+    balance = float(re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1))
     global user_id
     user_id = re.search(r'\<a href="/'+room+'/user/(\d+)"', sale.text).group(1)
     return True
@@ -209,8 +209,8 @@ def sale(user, itm, count=1):
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
 
         global balance
-        balance = str(float(balance) - (float(ware[0][2].replace('kr','').strip()) * float(count)))
-        print('Du har nu', balance, 'stregdollars tilbage')
+        balance -= (float(ware[0][2].replace('kr','').strip()) * float(count))
+        print(f'Du har nu {balance:.2f} stregdollars tilbage')
     else:
         print('''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
@@ -259,9 +259,9 @@ def user_buy(user):
     if test_user(user):
 #        os.system('cls||clear')
         print('Hej,', user)
-        print('Du har', balance, 'stregdollars')
+        print(f'Du har {balance:.2f} stregdollars')
         print('')
-        print("Hvad ønsker at købe i Stregsystemet? (Skriv 'exit' for at komme ud af interfacet)")
+        print("Hvad ønsker at købe i Stregsystemet? (Skriv en af", str(exit_words), "for at komme ud af interfacet)")
         print_wares(wares)
         print('')
         while True:
@@ -346,7 +346,7 @@ def main():
 
     if args.balance and args.user:
         test_user(args.user)
-        print(balance)
+        print(f'{balance:.2f}')
         return
     
     if args.history and args.user:
