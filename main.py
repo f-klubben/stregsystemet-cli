@@ -389,8 +389,6 @@ def main():
 
     else:
         if test_user(args.user):
-            sale(args.user, args.item, args.count)
-        else:
             if args.money:
                 get_qr(args.user, args.money)
             else:
