@@ -225,6 +225,7 @@ def parse(args):
     parser.add_argument('-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy')
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
+    parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -303,6 +304,23 @@ def no_info_buy():
 
     user_buy(user)
 
+def get_qr(user,amount):
+    if is_int(amount) and int(amount) < 50:
+        print('Mindste indsætningsbeløb er 50. Alt under, håndteres ikke.')
+        return
+
+    print(f"Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
+    session = requests.Session()
+    r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
+    if r.status_code != 200:
+        print('Noget gik galt', r.status_code)
+        raise SystemExit
+    
+    print(r.content.decode('UTF-8'))
+
+
+
+
 def get_saved_user() -> str:
     path=''
     if os.path.exists(os.path.expanduser('~/.config/sts/.sts')):
@@ -356,7 +374,10 @@ def main():
 
     if args.user == None or args.item == None:
         if args.user != None:
-            user_buy(args.user)
+            if args.money:
+                get_qr(args.user, args.money)
+            else:
+                user_buy(args.user)
         elif args.item != None:
             userless_buy(args.item, args.count)
         else:
@@ -364,7 +385,10 @@ def main():
 
     else:
         if test_user(args.user):
-            sale(args.user,args.item,args.count)
+            if args.money:
+                get_qr(args.user, args.money)
+            else:
+                sale(args.user,args.item,args.count)
         else:
             print('''Det var sært, %user%.
 Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
