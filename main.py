@@ -50,6 +50,9 @@ SHORTHANDS = {
     'sodapant': 31,
     'pantc': 1849,
     'storpant': 1849,
+    'nordic': 1901,
+    'fritfit': 1902,
+    'månedens': 1903,
 }
     
 def is_int(value):
