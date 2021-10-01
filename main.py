@@ -92,6 +92,11 @@ def print_wares(wares):
     for ware in wares:
         print('{:<8} {:<50} {:<10}'.format(ware[0],ware[1],ware[2]))
 
+def print_no_user_help(user):
+    print(
+        f'Det var sært, {user}. \nDet lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs dat'
+        f'abase. \nMåske tastede du forkert? \nHvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk'
+    )
 
 def test_user(user):
     session = requests.Session()
@@ -272,10 +277,8 @@ def user_buy(user):
                 continue
             sale(user, item, count)
     else:
-        print('''Det var sært, %user%.
-Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
-Måske tastede du forkert?
-Hvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk.'''.replace('%user%', user))
+        print_no_user_help(user)
+
 
 def userless_buy(item, count):
     ware = [ x for x in wares if x[0] == item ]
@@ -333,10 +336,7 @@ def main():
         if test_user(args.user):
             sale(args.user, args.item if args.item else str(args.product), args.count)
         else:
-            print('''Det var sært, %user%.
-        Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
-        Måske tastede du forkert?
-        Hvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk.'''.replace('%user%', user))
+            print_no_user_help(args.user)
 
         return
 
@@ -364,12 +364,9 @@ def main():
 
     else:
         if test_user(args.user):
-            sale(args.user,args.item,args.count)
+            sale(args.user, args.item, args.count)
         else:
-            print('''Det var sært, %user%.
-Det lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs database.
-Måske tastede du forkert?
-Hvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk.'''.replace('%user%', user))
+            print_no_user_help(args.user)
 
 
 if __name__ == '__main__':
