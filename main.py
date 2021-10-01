@@ -17,9 +17,10 @@ else:
     room = '10'
 
 
-exit_words = [':q','exit','quit','q']
-referer_header={'Referer': url}
+exit_words = [':q', 'exit', 'quit', 'q']
+referer_header = {'Referer': url}
 balance = float()
+
 user_id = ''
 
 SHORTHANDS = {
@@ -51,7 +52,8 @@ SHORTHANDS = {
     'pantc': 1849,
     'storpant': 1849,
 }
-    
+
+
 def is_int(value):
     try:
         int(value)
@@ -73,7 +75,7 @@ def get_wares():
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+ kr)</td>', body)
 
-    item_name_list = [ x for x in item_name_list if not is_int(x) ]
+    item_name_list = [x for x in item_name_list if not is_int(x)]
 
     session.close()
     wares = []
@@ -87,10 +89,10 @@ wares = get_wares()
 
 
 def print_wares(wares):
-    print('{:<8} {:<50} {:<10}'.format('Id','Item','Price'))
-    print('-'*68)
+    print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
+    print('-' * 68)
     for ware in wares:
-        print('{:<8} {:<50} {:<10}'.format(ware[0],ware[1],ware[2]))
+        print('{:<8} {:<50} {:<10}'.format(ware[0], ware[1], ware[2]))
 
 def print_no_user_help(user):
     print(
@@ -105,20 +107,12 @@ def test_user(user):
         print('Noget gik galt', r.status_code)
         raise SystemExit
 
-
-    token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"',r.text)
-    json = {
-        'quickbuy': f"{user}",
-        'csrfmiddlewaretoken': token.group(1)
-    }
+    token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
+    json = {'quickbuy': f"{user}", 'csrfmiddlewaretoken': token.group(1)}
     # pprint(json)
     cookies = {'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'}
     # pprint(cookies)
-    sale = session.post(f"{url}/{room}/sale/",
-            verify=False,
-            data=json,
-            cookies=cookies,
-            headers=referer_header)
+    sale = session.post(f"{url}/{room}/sale/", verify=False, data=json, cookies=cookies, headers=referer_header)
     session.close()
     if sale.status_code != 200:
         print('Noget gik galt.', sale.status_code, sale.content)
@@ -129,24 +123,25 @@ def test_user(user):
     global balance
     balance = float(re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1))
     global user_id
-    user_id = re.search(r'\<a href="/'+room+'/user/(\d+)"', sale.text).group(1)
+    user_id = re.search(r'\<a href="/' + room + '/user/(\d+)"', sale.text).group(1)
     return True
 
 
 def print_history(wares):
-    print('{:<29} {:<40}  {:<10}'.format('Date','Item','Price'))
-    print('-'*80)
+    print('{:<29} {:<40}  {:<10}'.format('Date', 'Item', 'Price'))
+    print('-' * 80)
     for ware in wares:
-        print('{:<29} {:<40}  {:<10}'.format(ware[0],ware[1],ware[2]))
-    
+        print('{:<29} {:<40}  {:<10}'.format(ware[0], ware[1], ware[2]))
+
     print('')
     print('')
 
+
 def get_history(user_id):
-    if not user_id: 
+    if not user_id:
         print('Den angivne bruger har ikke noget ID. Afslutter')
         raise SystemExit(1)
-    
+
     try:
         session = requests.Session()
         r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
@@ -156,12 +151,14 @@ def get_history(user_id):
 
     body = r.text
     item_date_list = re.findall(r'<td>(\d+\.\s\w+\s\d+\s\d+:\d+)</td>', body)
-    item_name_list = [ x for x in re.findall(r'<td>(.+?)</td>', body) if x not in item_date_list ][0:len(item_date_list)]
+    item_name_list = [x for x in re.findall(r'<td>(.+?)</td>', body) if x not in item_date_list][
+        0 : len(item_date_list)
+    ]
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+)</td>', body)
-    history=[]
+    history = []
     for x in range(len(item_date_list)):
         history.append((item_date_list[x], item_name_list[x], f"{item_price_list[x]} kr."))
-    
+
     print_history(history)
 
 
@@ -181,15 +178,13 @@ def sale(user, itm, count=1):
         raise SystemExit
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
-    json = {
-        'quickbuy': f"{user} {itm}:{count}",
-        'csrfmiddlewaretoken': token.group(1)
-    }
-    sale = session.post(f"{url}/{room}/sale/",
-            data=json,
-            cookies={'csrftoken': session.cookies.get_dict()['csrftoken'],
-                     'djdt': 'show'},
-            headers=referer_header,)
+    json = {'quickbuy': f"{user} {itm}:{count}", 'csrfmiddlewaretoken': token.group(1)}
+    sale = session.post(
+        f"{url}/{room}/sale/",
+        data=json,
+        cookies={'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'},
+        headers=referer_header,
+    )
     session.close()
     if sale.status_code != 200:
         print("Du har ikke købt din vare. Prøv igen", sale.status_code)
@@ -214,31 +209,39 @@ def sale(user, itm, count=1):
         print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
 
         global balance
-        balance -= (float(ware[0][2].replace('kr','').strip()) * float(count))
+        balance -= float(ware[0][2].replace('kr', '').strip()) * float(count)
         print(f'Du har nu {balance:.2f} stregdollars tilbage')
     else:
-        print('''STREGFORBUD!
+        print(
+            '''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
-Du kan foretage indbetaling via MobilePay''')
+Du kan foretage indbetaling via MobilePay'''
+        )
         raise SystemExit
 
 
 def parse(args):
     parser = argparse.ArgumentParser()
-    parser.add_argument('-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username')
+    parser.add_argument(
+        '-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username'
+    )
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
-    parser.add_argument('-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy')
+    parser.add_argument(
+        '-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy'
+    )
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
+    parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
 
-def get_item(ware_ids):    
+
+def get_item(ware_ids):
     count = 1
     item_id = input('Id> ')
     if item_id.lower() in exit_words:
-        return 'exit',0
+        return 'exit', 0
 
     if ':' in item_id:
         if is_int(item_id.split(':')[1]):
@@ -253,8 +256,8 @@ def get_item(ware_ids):
 
     while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
         if item_id.lower() in exit_words:
-            return 'exit',0
-         
+            return 'exit', 0
+
         print(f"'{item_id}' is not a valid item")
         item_id = input('Id> ')
     return item_id, count
@@ -262,7 +265,7 @@ def get_item(ware_ids):
 
 def user_buy(user):
     if test_user(user):
-#        os.system('cls||clear')
+        #        os.system('cls||clear')
         print('Hej,', user)
         print(f'Du har {balance:.2f} stregdollars')
         print('')
@@ -281,7 +284,7 @@ def user_buy(user):
 
 
 def userless_buy(item, count):
-    ware = [ x for x in wares if x[0] == item ]
+    ware = [x for x in wares if x[0] == item]
     print('Du er ved at købe', count, ware[0][1], 'til', ware[0][2], 'stykket')
     print("Du kan skrive 'exit' for at annullere.")
     user = input('Hvad er dit brugernavn? ')
@@ -293,6 +296,7 @@ def userless_buy(item, count):
         user = input('Hvad er dit brugernavn? ')
 
     sale(user, item, count)
+
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
@@ -306,8 +310,24 @@ def no_info_buy():
 
     user_buy(user)
 
+
+def get_qr(user, amount):
+    if is_int(amount) and int(amount) < 50:
+        print('Mindste indsætningsbeløb er 50. Alt under, håndteres ikke.')
+        return
+
+    print(f"Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
+    session = requests.Session()
+    r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
+    if r.status_code != 200:
+        print('Noget gik galt', r.status_code)
+        raise SystemExit
+    
+    print(r.content.decode('UTF-8'))
+
+
 def get_saved_user() -> str:
-    path=''
+    path = ''
     if os.path.exists(os.path.expanduser('~/.config/sts/.sts')):
         path = os.path.expanduser('~/.config/sts/.sts')
     elif os.path.exists(os.path.expanduser('~/.sts')):
@@ -326,8 +346,9 @@ def get_saved_user() -> str:
                 return matches.group(1)
     return None
 
+
 def main():
-    args=parse(sys.argv[1::])
+    args = parse(sys.argv[1::])
 
     if args.user is None:
         args.user = get_saved_user()
@@ -337,6 +358,7 @@ def main():
             sale(args.user, args.item if args.item else str(args.product), args.count)
         else:
             print_no_user_help(args.user)
+
 
         return
 
@@ -348,7 +370,7 @@ def main():
         test_user(args.user)
         print(f'{balance:.2f}')
         return
-    
+
     if args.history and args.user:
         global user_id
         test_user(args.user)
@@ -356,7 +378,10 @@ def main():
 
     if args.user == None or args.item == None:
         if args.user != None:
-            user_buy(args.user)
+            if args.money:
+                get_qr(args.user, args.money)
+            else:
+                user_buy(args.user)
         elif args.item != None:
             userless_buy(args.item, args.count)
         else:
@@ -365,6 +390,11 @@ def main():
     else:
         if test_user(args.user):
             sale(args.user, args.item, args.count)
+        else:
+            if args.money:
+                get_qr(args.user, args.money)
+            else:
+                sale(args.user, args.item, args.count)
         else:
             print_no_user_help(args.user)
 
