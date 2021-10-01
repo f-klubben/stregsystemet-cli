@@ -316,7 +316,7 @@ def no_info_buy():
     user_buy(user)
 
 
-def get_qr(user,amount):
+def get_qr(user, amount):
     if is_int(amount) and int(amount) < 50:
         print('Mindste indsætningsbeløb er 50. Alt under, håndteres ikke.')
         return
@@ -327,7 +327,7 @@ def get_qr(user,amount):
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
         raise SystemExit
-    
+
     print(r.content.decode('UTF-8'))
 
 
