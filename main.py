@@ -377,6 +377,9 @@ def main():
         get_history(user_id)
 
     if args.user == None or args.item == None:
+        if args.user == None:
+            args.user = input('Hvad er dit brugernavn? ')
+
         if args.user != None:
             if args.money:
                 get_qr(args.user, args.money)
