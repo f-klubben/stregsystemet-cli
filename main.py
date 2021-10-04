@@ -247,6 +247,7 @@ def parse(args):
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
+    parser.add_argument('-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -344,6 +345,17 @@ def main():
 
     if args.user is None:
         args.user = get_saved_user()
+
+    if args.setup:
+        if args.user == None:
+            args.user = get_user_validated()
+        
+        if(test_user(args.user)):
+            home = os.environ['HOME']
+            file = open(f"{home}/.sts", "w")
+            print(f"Your .sts file has been created at location {home}/.sts")
+            file.write(f"user={args.user}")
+            file.close()
 
     if args.user and args.product:
         if test_user(args.user):
