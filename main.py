@@ -94,8 +94,6 @@ def get_wares():
 
 wares = get_wares()
 
-bold_pattern = re.compile(r"<h\d>(.*)<\/h\d>")
-
 
 def format_warename(warename, pad_to):
     def pad(thing):
@@ -106,10 +104,17 @@ def format_warename(warename, pad_to):
             return thing
         return "\033[1m" + thing + "\033[0m"
 
-    match = bold_pattern.search(warename)
-    if match:
-        return make_bold(pad(match.group(1).strip()))
-    return pad(warename)
+    # Recursive regex matching lets go
+    def extract_text(thing):
+        res, n = re.subn(f"<\/?[^>]+>", "", thing)
+        return res, n > 0
+
+    warename, do_bold = extract_text(warename)
+    warename = pad(warename.strip())
+    if do_bold:
+        return make_bold(warename)
+
+    return warename
 
 
 def print_wares(wares):
