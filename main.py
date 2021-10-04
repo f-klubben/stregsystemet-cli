@@ -364,6 +364,7 @@ def update_script():
     if newest_file_hash == current_file_hash:
         return
 
+    # I perform open heart surgery on myself :)
     with open(__file__, 'w') as f:
         f.write(r.text)
 
