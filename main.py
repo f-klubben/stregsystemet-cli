@@ -247,6 +247,7 @@ def parse(args):
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
+    parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -339,8 +340,31 @@ def get_saved_user() -> str:
                 return matches.group(1)
     return None
 
+def calculate_sha256_binary(binary) -> str:
+    import hashlib
+    return hashlib.sha256(binary).hexdigest()
+
+def update_script():
+    r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+    newest_file_hash = calculate_sha256_binary(r.content)
+
+    with open(__file__, 'rb') as f:
+        data = f.read()
+    current_file_hash = calculate_sha256_binary(data)
+
+    if newest_file_hash == current_file_hash:
+        return
+
+    with open(__file__, 'w') as f:
+        f.write(r.text)
+
+
 def main():
     args = parse(sys.argv[1::])
+
+    if args.update == True:
+        update_script()
+        return
 
     if args.user is None:
         args.user = get_saved_user()
