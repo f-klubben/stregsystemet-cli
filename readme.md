@@ -35,6 +35,7 @@ optional arguments:
   -b, --balance         Output only stregdollar balance
 
   -l, --history         Shows your recent purchases
+  -a, --update          Update the script and then exists
 ```
 
 If either the user or item arguments or no arguments at all are specified the CLI will enter interactive mode.
