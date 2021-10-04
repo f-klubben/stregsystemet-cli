@@ -6,6 +6,7 @@ import argparse
 import sys
 import os
 import urllib3
+import configparser
 
 urllib3.disable_warnings()
 
@@ -20,6 +21,7 @@ else:
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
+config = configparser.ConfigParser()
 
 user_id = ''
 
@@ -248,6 +250,7 @@ def parse(args):
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
+    parser.add_argument('-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username')
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -319,26 +322,32 @@ def get_qr(user, amount):
 
     print(r.content.decode('UTF-8'))
 
+def update_config_file(dirs):
+    # This function iterates all config files and prepends "[sts]\n" to them.
+    for path in dirs:
+        if not os.path.exists(path):
+            continue
+        with open(path, 'r') as original:
+            data = original.read()
+        with open(path, 'w') as modified:
+            modified.write('[sts]\n' + data)
+
+def read_config():
+    dirs = [
+        os.path.expanduser('~/.config/sts/.sts'),
+        os.path.expanduser('~/.sts'),
+        '.sts'
+    ]
+    try:
+        config.read(dirs)
+    except configparser.MissingSectionHeaderError:
+        # update the config to new format
+        update_config_file(dirs)
+        config.read(dirs)
 
 def get_saved_user() -> str:
-    path = ''
-    if os.path.exists(os.path.expanduser('~/.config/sts/.sts')):
-        path = os.path.expanduser('~/.config/sts/.sts')
-    elif os.path.exists(os.path.expanduser('~/.sts')):
-        path = os.path.expanduser('~/.sts')
-    else:
-        path = None
+    return config.get('sts', 'user', fallback=None)
 
-    if path != None:
-        with open(os.path.expanduser(path)) as f:
-            line = f.readline()
-            matches = re.search('user=(.+)', line)
-            if not matches:
-                print(f"Hov, din config: '{line}' ser ikke rigtig ud. Skriv 'user=$dit_username")
-                return None
-            elif matches.group(1):
-                return matches.group(1)
-    return None
 
 def calculate_sha256_binary(binary) -> str:
     import hashlib
@@ -366,8 +375,21 @@ def main():
         update_script()
         return
 
+    read_config()
+
     if args.user is None:
         args.user = get_saved_user()
+
+    if args.setup:
+        if args.user == None:
+            args.user = get_user_validated()
+        
+        if(test_user(args.user)):
+            home = os.environ['HOME']
+            file = open(f"{home}/.sts", "w")
+            print(f"Your .sts file has been created at location {home}/.sts")
+            file.write(f"user={args.user}")
+            file.close()
 
     if args.user and args.product:
         if test_user(args.user):
