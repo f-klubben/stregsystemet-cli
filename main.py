@@ -179,6 +179,34 @@ def get_history(user_id):
     print_history(history)
 
 
+def check_product_info(product_string):
+    parts = product_string.split(':')
+    product_name, count = parts[0], None
+    if len(parts) > 1:
+        if is_int(parts[1]):
+            count = int(parts[1])
+        else:
+            print(f'"{parts[1]}" er ikke en valid mængde. Positiv integer forventet.')
+            raise SystemExit(1)
+
+    if count is not None and count < 1:
+        print(f'{count} er ikke en valid mængde. Positiv integer forventet.')
+        raise SystemExit(1)
+
+    if re.search(r'^\d+$', product_name) is None:
+        if product_name in SHORTHANDS:
+            product_name = str(SHORTHANDS[product_name])
+        else:
+            print(f'Produkt shorthand "{product_name}" findes ikke. Køb annulleret.')
+            raise SystemExit(1)
+
+    return product_name, count
+
+
+def parse_product_string(string):
+    return map(check_product_info, string.split('+'))
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
@@ -394,7 +422,9 @@ def main():
 
     if args.user and args.product:
         if test_user(args.user):
-            sale(args.user, args.item if args.item else str(args.product), args.count)
+            products = parse_product_string(args.item if args.item else str(args.product))
+            for product in products:
+                sale(args.user, product[0], product[1] if product[1] else args.count)
         else:
             print_no_user_help(args.user)
 
