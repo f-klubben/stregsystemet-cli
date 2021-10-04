@@ -244,7 +244,7 @@ def parse(args):
     )
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
     parser.add_argument(
-        '-c', '--count', default=1, nargs='?', dest='count', help='Specifies the amount of items you wish to buy'
+        '-c', '--count', default=1, nargs='?', dest='count', type=int, help='Specifies the amount of items you wish to buy'
     )
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
@@ -384,7 +384,7 @@ def main():
     if args.setup:
         if args.user == None:
             args.user = get_user_validated()
-        
+
         if(test_user(args.user)):
             home = os.environ['HOME']
             file = open(f"{home}/.sts", "w")
@@ -398,10 +398,6 @@ def main():
         else:
             print_no_user_help(args.user)
 
-        return
-
-    if not is_int(args.count):
-        print('Mængder skal være heltal')
         return
 
     if args.balance and args.user:
