@@ -298,14 +298,6 @@ def user_buy(user):
         print_no_user_help(user)
 
 
-def userless_buy(item, count):
-    ware = [x for x in wares if x[0] == item]
-    print('Du er ved at købe', count, ware[0][1], 'til', ware[0][2], 'stykket')
-    print("Du kan skrive 'exit' for at annullere.")
-    user = get_user_validated()
-    sale(user, item, count)
-
-
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
     user = get_user_validated()
@@ -347,7 +339,6 @@ def get_saved_user() -> str:
                 return matches.group(1)
     return None
 
-
 def main():
     args = parse(sys.argv[1::])
 
@@ -359,7 +350,6 @@ def main():
             sale(args.user, args.item if args.item else str(args.product), args.count)
         else:
             print_no_user_help(args.user)
-
 
         return
 
@@ -386,8 +376,6 @@ def main():
                 get_qr(args.user, args.money)
             else:
                 user_buy(args.user)
-        elif args.item != None:
-            userless_buy(args.item, args.count)
         else:
             no_info_buy()
 
