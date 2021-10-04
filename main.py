@@ -95,7 +95,16 @@ def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
     for ware in wares:
-        print('{:<8} {:<50} {:<10}'.format(ware[0], ware[1], ware[2]))
+        print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
+        if re.match("<\w\d>", ware[1]):
+            r = re.sub("<\w\d>|</\w\d>", '', ware[1])
+            print(f"\u001B[31m{get_ascii((f'{ware[0]}+{r}+{ware[2]}'))}\u001B[0m")
+        
+
+def get_ascii(text):
+    session = requests.Session()
+    text = session.get(f"https://artii.herokuapp.com/make?text={text}&font=small")
+    return text.content.decode('UTF-8')
 
 def print_no_user_help(user):
     print(
@@ -356,6 +365,8 @@ def main():
             print(f"Your .sts file has been created at location {home}/.sts")
             file.write(f"user={args.user}")
             file.close()
+
+    get_ascii("FYTTETUR")
 
     if args.user and args.product:
         if test_user(args.user):
