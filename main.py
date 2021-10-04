@@ -132,6 +132,7 @@ def test_user(user):
 
 def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
+
     while not test_user(user):
         if user.lower() in exit_words:
             raise SystemExit
@@ -295,6 +296,7 @@ def user_buy(user):
             sale(user, item, count)
     else:
         print_no_user_help(user)
+
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
