@@ -321,7 +321,7 @@ def get_qr(user, amount):
     print(r.content.decode('UTF-8'))
 
 def update_config_file(dirs):
-    # This function iterates all config files and appends "[sts]\n" to them.
+    # This function iterates all config files and prepends "[sts]\n" to them.
     for path in dirs:
         if not os.path.exists(path):
             continue
