@@ -22,6 +22,7 @@ exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
 config = configparser.ConfigParser()
+no_color = False
 
 user_id = ''
 
@@ -63,6 +64,7 @@ def is_int(value):
     try:
         int(value)
         return True
+
     except:
         return False
 
@@ -92,12 +94,31 @@ def get_wares():
 
 wares = get_wares()
 
+bold_pattern = re.compile(r"<h\d>(.*)<\/h\d>")
+
+
+def format_warename(warename, pad_to):
+    def pad(thing):
+        return thing.ljust(pad_to, " ")
+
+    def make_bold(thing):
+        if no_color:
+            return thing
+        return "\033[1m" + thing + "\033[0m"
+
+    match = bold_pattern.search(warename)
+    if match:
+        return make_bold(pad(match.group(1).strip()))
+    return pad(warename)
+
 
 def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
     for ware in wares:
-        print('{:<8} {:<50} {:<10}'.format(ware[0], ware[1], ware[2]))
+        ident, warename, price = ware
+        warename = format_warename(warename, 50)
+        print('{:<8} {:} {:<10}'.format(ident, warename, price))
 
 def print_no_user_help(user):
     print(
@@ -250,6 +271,7 @@ def parse(args):
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username')
+    parser.add_argument("--no-color", action="store_true", help="Do not display colors and bold stuff")
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -349,6 +371,7 @@ def get_saved_user() -> str:
 
 
 def main():
+    global no_color
     args = parse(sys.argv[1::])
 
     read_config()
@@ -384,6 +407,9 @@ def main():
         global user_id
         test_user(args.user)
         get_history(user_id)
+
+    if args.no_color or not os.environ["TERM"].startswith("xterm"):
+        no_color = True
 
     if args.user == None or args.item == None:
         if args.user == None:
