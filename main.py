@@ -127,6 +127,18 @@ def test_user(user):
     return True
 
 
+def get_user_validated():
+    user = input('Hvad er dit brugernavn? ')
+
+    while not test_user(user):
+        if user.lower() in exit_words:
+            raise SystemExit
+        print(f"'{user}' is not a valid user")
+        user = input('Hvad er dit brugernavn? ')
+
+    return user
+
+
 def print_history(wares):
     print('{:<29} {:<40}  {:<10}'.format('Date', 'Item', 'Price'))
     print('-' * 80)
@@ -287,27 +299,13 @@ def userless_buy(item, count):
     ware = [x for x in wares if x[0] == item]
     print('Du er ved at købe', count, ware[0][1], 'til', ware[0][2], 'stykket')
     print("Du kan skrive 'exit' for at annullere.")
-    user = input('Hvad er dit brugernavn? ')
-
-    while not test_user(user):
-        if user.lower() in exit_words:
-            raise SystemExit
-        print(f"'{user}' is not a valid user")
-        user = input('Hvad er dit brugernavn? ')
-
+    user = get_user_validated()
     sale(user, item, count)
 
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
-    user = input('Hvad er dit brugernavn? ')
-
-    while not test_user(user):
-        if user.lower() in exit_words:
-            raise SystemExit
-        print(f"'{user}' is not a valid user")
-        user = input('Hvad er dit brugernavn? ')
-
+    user = get_user_validated()
     user_buy(user)
 
 
@@ -378,7 +376,7 @@ def main():
 
     if args.user == None or args.item == None:
         if args.user == None:
-            args.user = input('Hvad er dit brugernavn? ')
+            args.user = get_user_validated()
 
         if args.user != None:
             if args.money:
