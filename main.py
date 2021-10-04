@@ -6,6 +6,7 @@ import argparse
 import sys
 import os
 import urllib3
+import configparser
 
 urllib3.disable_warnings()
 
@@ -20,6 +21,7 @@ else:
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
+config = configparser.ConfigParser()
 
 user_id = ''
 
@@ -318,29 +320,37 @@ def get_qr(user, amount):
 
     print(r.content.decode('UTF-8'))
 
+def update_config_file(dirs):
+    # This function iterates all config files and appends "[sts]\n" to them.
+    for path in dirs:
+        if not os.path.exists(path):
+            continue
+        with open(path, 'r') as original:
+            data = original.read()
+        with open(path, 'w') as modified:
+            modified.write('[sts]\n' + data)
+
+def read_config():
+    dirs = [
+        os.path.expanduser('~/.config/sts/.sts'),
+        os.path.expanduser('~/.sts'),
+        '.sts'
+    ]
+    try:
+        config.read(dirs)
+    except configparser.MissingSectionHeaderError:
+        # update the config to new format
+        update_config_file(dirs)
+        config.read(dirs)
 
 def get_saved_user() -> str:
-    path = ''
-    if os.path.exists(os.path.expanduser('~/.config/sts/.sts')):
-        path = os.path.expanduser('~/.config/sts/.sts')
-    elif os.path.exists(os.path.expanduser('~/.sts')):
-        path = os.path.expanduser('~/.sts')
-    else:
-        path = None
+    return config.get('sts', 'user', fallback=None)
 
-    if path != None:
-        with open(os.path.expanduser(path)) as f:
-            line = f.readline()
-            matches = re.search('user=(.+)', line)
-            if not matches:
-                print(f"Hov, din config: '{line}' ser ikke rigtig ud. Skriv 'user=$dit_username")
-                return None
-            elif matches.group(1):
-                return matches.group(1)
-    return None
 
 def main():
     args = parse(sys.argv[1::])
+
+    read_config()
 
     if args.user is None:
         args.user = get_saved_user()
