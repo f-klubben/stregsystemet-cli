@@ -99,11 +99,13 @@ def print_wares(wares):
     for ware in wares:
         print('{:<8} {:<50} {:<10}'.format(ware[0], ware[1], ware[2]))
 
+
 def print_no_user_help(user):
     print(
         f'Det var sært, {user}. \nDet lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs dat'
         f'abase. \nMåske tastede du forkert? \nHvis du ikke er medlem, kan du blive det ved at følge guiden på fklub.dk'
     )
+
 
 def test_user(user):
     session = requests.Session()
@@ -223,11 +225,15 @@ def sale(user, itm, count=1):
             print(f"Der findes ikke nogen varer med id {itm}.")
             return
 
-        print('Du har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
+        print(f'{user} har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
 
         global balance
         balance -= float(ware[0][2].replace('kr', '').strip()) * float(count)
-        print(f'Du har nu {balance:.2f} stregdollars tilbage')
+        print(
+            f'Der er {balance:.2f} stregdollars - eller {balance / float(wares[5][2].replace("kr", "").strip()):.2f} '
+            f'limfjordsportere - tilbage, '
+        )
+
     else:
         print(
             '''STREGFORBUD!
@@ -244,13 +250,21 @@ def parse(args):
     )
     parser.add_argument('-i', '--item', default=None, nargs='?', dest='item', help='Specifies the item you wish to buy')
     parser.add_argument(
-        '-c', '--count', default=1, nargs='?', dest='count', type=int, help='Specifies the amount of items you wish to buy'
+        '-c',
+        '--count',
+        default=1,
+        nargs='?',
+        dest='count',
+        type=int,
+        help='Specifies the amount of items you wish to buy',
     )
     parser.add_argument('-b', '--balance', action='store_true', help='Output only stregdollar balance')
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
-    parser.add_argument('-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username')
+    parser.add_argument(
+        '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
+    )
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
     return parser.parse_args(args)
@@ -322,6 +336,7 @@ def get_qr(user, amount):
 
     print(r.content.decode('UTF-8'))
 
+
 def update_config_file(dirs):
     # This function iterates all config files and prepends "[sts]\n" to them.
     for path in dirs:
@@ -332,12 +347,9 @@ def update_config_file(dirs):
         with open(path, 'w') as modified:
             modified.write('[sts]\n' + data)
 
+
 def read_config():
-    dirs = [
-        os.path.expanduser('~/.config/sts/.sts'),
-        os.path.expanduser('~/.sts'),
-        '.sts'
-    ]
+    dirs = [os.path.expanduser('~/.config/sts/.sts'), os.path.expanduser('~/.sts'), '.sts']
     try:
         config.read(dirs)
     except configparser.MissingSectionHeaderError:
@@ -345,13 +357,16 @@ def read_config():
         update_config_file(dirs)
         config.read(dirs)
 
+
 def get_saved_user() -> str:
     return config.get('sts', 'user', fallback=None)
 
 
 def calculate_sha256_binary(binary) -> str:
     import hashlib
+
     return hashlib.sha256(binary).hexdigest()
+
 
 def update_script():
     r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
@@ -385,7 +400,7 @@ def main():
         if args.user == None:
             args.user = get_user_validated()
 
-        if(test_user(args.user)):
+        if test_user(args.user):
             home = os.environ['HOME']
             file = open(f"{home}/.sts", "w")
             print(f"Your .sts file has been created at location {home}/.sts")
