@@ -97,7 +97,13 @@ def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
     for ware in wares:
-        print('{:<8} {:<50} {:<10}'.format(ware[0], ware[1], ware[2]))
+        if re.match("<\w\d>", ware[1]):
+            r = re.sub("<br>", ' - ', ware[1])
+            r = re.sub("<\w\d> | </\w\d>|<\w\w>|</\w\d>", '', r)
+            print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
+        else:
+            print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
+
 
 
 def print_no_user_help(user):
