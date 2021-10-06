@@ -106,7 +106,6 @@ def print_wares(wares):
             print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
 
 
-
 def print_no_user_help(user):
     print(
         f'Det var sært, {user}. \nDet lader ikke til, at du er registreret som aktivt medlem af F-klubben i TREOENs dat'
