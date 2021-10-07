@@ -230,8 +230,8 @@ def sale(user, itm, count=1):
         global balance
         balance -= float(ware[0][2].replace('kr', '').strip()) * float(count)
         itm_unit_price = float(ware[0][2].replace("kr", "").strip())
-        itm_units_left = balance / itm_unit_price if itm_unit_price > 0 else "∞"
-        print(f'Der er {balance:.2f} stregdollars - eller {itm_units_left:.2f} ' f'x {ware[0][1]} - tilbage')
+        itm_units_left = f"{(balance / itm_unit_price):.2f}" if itm_unit_price > 0 else "∞"
+        print(f'Der er {balance:.2f} stregdollars - eller {itm_units_left} ' f'x {ware[0][1]} - tilbage')
 
     else:
         print(
