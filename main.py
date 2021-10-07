@@ -7,6 +7,7 @@ import sys
 import os
 import urllib3
 import configparser
+from pprint import pprint
 
 urllib3.disable_warnings()
 
@@ -103,7 +104,6 @@ def print_wares(wares):
             print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
         else:
             print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
-
 
 
 def print_no_user_help(user):
@@ -267,6 +267,7 @@ def parse(args):
     parser.add_argument('-l', '--history', action='store_true', help='Shows your recent purchases')
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
+    parser.add_argument('-o', '--shorthands', action='store_true', help='Shows shorthands')
     parser.add_argument(
         '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
     )
@@ -394,6 +395,11 @@ def main():
 
     if args.update == True:
         update_script()
+        return
+
+    if args.shorthands:
+        print("You can use the following shorthand for purchasing")
+        pprint(SHORTHANDS)
         return
 
     read_config()
