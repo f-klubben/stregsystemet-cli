@@ -19,7 +19,7 @@ Or add it as a package in nix
 
 ```nix
 environment.systemPackages = [
-	(import (fetchTarball "https://github.com/sebbadk/stregsystemet-cli/archive/master.tar.gz") {})
+	(import (fetchTarball "https://github.com/f-klubben/stregsystemet-cli/archive/master.tar.gz") {})
 ]
 ```
 
