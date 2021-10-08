@@ -15,6 +15,14 @@ To install the script, simply cURL or wget it from GitHub
 wget https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py -O sts
 ```
 
+Or add it as a package in nix
+
+```nix
+environment.systemPackages = [
+	(import (fetchTarball "https://github.com/f-klubben/stregsystemet-cli/archive/master.tar.gz") {})
+]
+```
+
 ## Usage
 
 ```bash
@@ -35,6 +43,7 @@ optional arguments:
   -b, --balance         Output only stregdollar balance
 
   -l, --history         Shows your recent purchases
+  -a, --update          Update the script and then exits
 ```
 
 If either the user or item arguments or no arguments at all are specified the CLI will enter interactive mode.
