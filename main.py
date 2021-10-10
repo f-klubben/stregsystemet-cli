@@ -5,11 +5,8 @@ import re
 import argparse
 import sys
 import os
-import urllib3
 import configparser
 from pprint import pprint
-
-urllib3.disable_warnings()
 
 if sys.argv[0] == './main.py':
     url = 'http://localhost:8000'

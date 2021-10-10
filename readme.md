@@ -5,7 +5,7 @@ Use of this cli-tool is **at your own risk** and there will be no support guarra
  
 ## Requirements
 
-The CLI is a python script that relies on no external dependendencies. The script is tested with python 3.9
+The CLI is a python script that relies on no external dependendencies except `requests`. The script is tested with python 3.9
 
 ## Installation
 
@@ -27,7 +27,7 @@ environment.systemPackages = [
 
 ```bash
 $ sts -h
-usage: sts [-h] [-u [USER]] [-i [ITEM]] [-c [COUNT]] [-b] [-l] [product]
+usage: sts [-h] [-u [USER]] [-i [ITEM]] [-c [COUNT]] [-b] [-l] [-p MONEY] [-a] [-o] [-s] [product]
 
 positional arguments:
   product               Specifies the product to buy
@@ -41,9 +41,12 @@ optional arguments:
   -c [COUNT], --count [COUNT]
                         Specifies the amount of items you wish to buy
   -b, --balance         Output only stregdollar balance
-
   -l, --history         Shows your recent purchases
-  -a, --update          Update the script and then exits
+  -p MONEY, --mobilepay MONEY
+                        Provides a QR code to insert money into your account
+  -a, --update          Update the script and then exists
+  -o, --shorthands      Shows shorthands
+  -s, --setup           Creates a .sts at /home/<user> storing your account username
 ```
 
 If either the user or item arguments or no arguments at all are specified the CLI will enter interactive mode.
