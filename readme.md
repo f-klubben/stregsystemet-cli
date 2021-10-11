@@ -5,7 +5,7 @@ Use of this cli-tool is **at your own risk** and there will be no support guarra
  
 ## Requirements
 
-The CLI is a python script that relies on no external dependendencies except `requests`. The script is tested with python 3.9
+The CLI is a python script that relies on no external dependendencies except `requests` and `urllib3`. The script is tested with python 3.9
 
 ## Installation
 
