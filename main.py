@@ -376,7 +376,7 @@ def calculate_sha256_binary(binary) -> str:
 
 def update_script():
     if not os.access(__file__, os.W_OK):
-        print('Stregsystemet-CLI er i read-only mode og kan derfor ikke opdateres. Er du på NIX OS?')
+        print('Stregsystemet-CLI er i læs-kun modus og kan derfor ikke opdateres. Er du på NIX operativsystem?')
         return
 
     r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
