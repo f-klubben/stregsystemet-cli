@@ -375,9 +375,12 @@ def calculate_sha256_binary(binary) -> str:
 
 
 def update_script():
+    if not os.access(__file__, os.W_OK):
+        print('Stregsystemet-CLI er i read-only mode og kan derfor ikke opdateres. Er du på NIX OS?')
+        return
+
     r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
     newest_file_hash = calculate_sha256_binary(r.content)
-
     with open(__file__, 'rb') as f:
         data = f.read()
     current_file_hash = calculate_sha256_binary(data)
