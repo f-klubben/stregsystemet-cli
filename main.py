@@ -143,7 +143,7 @@ def test_user(user):
 def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
 
-    while not test_user(user):
+    while not user or not test_user(user):
         if user.lower() in exit_words:
             raise SystemExit
         print(f"'{user}' is not a valid user")
