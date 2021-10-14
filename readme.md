@@ -15,6 +15,8 @@ To install the script, simply cURL or wget it from GitHub
 wget https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py -O sts
 ```
 
+Using the CLI in Powershell can be made easier by running the setup script in the same folder as either the git repository or the sts file. 
+
 Or add it as a package in nix
 
 ```nix
