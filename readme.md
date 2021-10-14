@@ -17,7 +17,7 @@ wget https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.p
 
 Using the CLI in Powershell can be made easier by running the setup script in the same folder as either the git repository or the sts file. 
 
-Or add it as a package in nix
+Installing it as a package in nix.
 
 ```nix
 environment.systemPackages = [
