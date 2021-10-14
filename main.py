@@ -7,6 +7,7 @@ import sys
 import os
 import urllib3
 import configparser
+import sys
 from pprint import pprint
 
 urllib3.disable_warnings()
@@ -18,7 +19,7 @@ else:
     url = 'https://stregsystem.fklub.dk'
     room = '10'
 
-
+is_windows_terminal = sys.platform == "win32" and os.environ.get("WT_SESSION")
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
@@ -98,7 +99,7 @@ def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
     for ware in wares:
-        if re.match("<\w\d>", ware[1]):
+        if re.match("<\w\d>", ware[1]) and (sys.platform == 'linux' or is_windows_terminal):
             r = re.sub("<br>", ' - ', ware[1])
             r = re.sub("<\w\d> | </\w\d>|<\w\w>|</\w\d>", '', r)
             print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
