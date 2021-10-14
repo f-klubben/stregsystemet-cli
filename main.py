@@ -416,7 +416,10 @@ def main():
             args.user = get_user_validated()
 
         if test_user(args.user):
-            home = os.environ['HOME']
+            if sys.platform == "win32":
+                home = os.path.expanduser('~')
+            else:
+                home = os.environ['HOME']
             file = open(f"{home}/.sts", "w")
             print(f"Your .sts file has been created at location {home}/.sts")
             file.write(f"user={args.user}")
