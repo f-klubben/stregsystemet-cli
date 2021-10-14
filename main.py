@@ -21,7 +21,7 @@ else:
     room = '10'
 
 is_windows_terminal = sys.platform == "win32" and os.environ.get("WT_SESSION")
-pltform = platform.platform()
+pltform = platform.system()
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
