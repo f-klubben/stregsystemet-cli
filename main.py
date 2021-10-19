@@ -7,6 +7,7 @@ import sys
 import os
 import urllib3
 import configparser
+import sys
 from pprint import pprint
 
 urllib3.disable_warnings()
@@ -18,13 +19,16 @@ else:
     url = 'https://stregsystem.fklub.dk'
     room = '10'
 
-
+is_windows = sys.platform == "win32"
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
 config = configparser.ConfigParser()
 
 user_id = ''
+
+if is_windows:
+    os.system('color')
 
 SHORTHANDS = {
     'porter': 42,
