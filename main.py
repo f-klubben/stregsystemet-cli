@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+from __future__ import print_function
 
+from random import random
 import requests
 import re
 import argparse
@@ -8,6 +10,9 @@ import os
 import urllib3
 import configparser
 import sys
+import builtins as __builtin__
+
+from datetime import date
 from pprint import pprint
 
 urllib3.disable_warnings()
@@ -19,13 +24,16 @@ else:
     url = 'https://stregsystem.fklub.dk'
     room = '10'
 
-is_windows_terminal = sys.platform == "win32" and os.environ.get("WT_SESSION")
+is_windows = sys.platform == "win32"
 exit_words = [':q', 'exit', 'quit', 'q']
 referer_header = {'Referer': url}
 balance = float()
 config = configparser.ConfigParser()
 
 user_id = ''
+
+if is_windows:
+    os.system('color')
 
 SHORTHANDS = {
     'porter': 42,
@@ -62,18 +70,59 @@ SHORTHANDS = {
 
 
 def is_int(value):
+    if not value:
+        return False
     try:
         int(value)
         return True
-    except:
+    except ValueError:
         return False
+
+
+_date = date.today()
+month = _date.month
+bat_amount = _date.day
+lines_counted = 0
+
+
+def print(*args, **kwargs):
+    global bat_amount, lines_counted
+    msg = ' '.join(map(str, args))
+    if _date.month == 10 and bat_amount > 0:
+        # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
+        print_prob = (
+            ((random() * 10) / (len(' '.join(map(str, args))) * random() + 0.1) * random())
+            * ((_date.day / 100) + 1)
+            * 0.7
+            * (lines_counted * 0.15)
+        )
+        print_prob = print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob
+
+        batted = False
+        for i in range(len(msg)):
+            if print_prob > random() and random() > random() and bat_amount > 0 and not batted:
+                if msg[i] == '-' or is_int(msg[i]) and random() > 0.04:
+                    print_prob += random()
+                    continue
+                msg = msg[:i] + '🦇' + msg[i + 1 :]
+                bat_amount -= 1
+                batted = True
+                print_prob = print_prob - random()
+                if print_prob <= 0 or bat_amount == 0:
+                    break
+            else:
+                batted = False
+        __builtins__.print(msg)
+    else:
+        __builtins__.print(msg)
+    lines_counted += 1
 
 
 def get_wares():
     try:
         session = requests.Session()
         r = session.get(f"{url}/{room}/", verify=False)
-    except:
+    except Exception:
         print('Could not fetch wares from Stregsystement...')
         raise SystemExit(1)
 
@@ -144,7 +193,7 @@ def test_user(user):
 def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
 
-    while not test_user(user):
+    while not user or not test_user(user):
         if user.lower() in exit_words:
             raise SystemExit
         print(f"'{user}' is not a valid user")
@@ -171,7 +220,7 @@ def get_history(user_id):
     try:
         session = requests.Session()
         r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
-    except:
+    except Exception:
         print('Kunne ikke oprette forbindelse til Stregsystenet')
         raise SystemExit(1)
 
@@ -334,7 +383,7 @@ def get_qr(user, amount):
         print('Mindste indsætningsbeløb er 50. Alt under, håndteres ikke.')
         return
 
-    print(f"Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
+    print("Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
     session = requests.Session()
     r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
     if r.status_code != 200:
@@ -397,7 +446,7 @@ def update_script():
 def main():
     args = parse(sys.argv[1::])
 
-    if args.update == True:
+    if args.update is True:
         update_script()
         return
 
@@ -412,7 +461,7 @@ def main():
         args.user = get_saved_user()
 
     if args.setup:
-        if args.user == None:
+        if args.user is None:
             args.user = get_user_validated()
 
         if test_user(args.user):
@@ -443,11 +492,11 @@ def main():
         test_user(args.user)
         get_history(user_id)
 
-    if args.user == None or args.item == None:
-        if args.user == None:
+    if args.user is None or args.item is None:
+        if args.user is None:
             args.user = get_user_validated()
 
-        if args.user != None:
+        if args.user is not None:
             if args.money:
                 get_qr(args.user, args.money)
             else:
@@ -468,5 +517,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         raise SystemExit(0)
