@@ -77,32 +77,39 @@ def is_int(value):
     except ValueError:
         return False
 
+
 _date = date.today()
 month = _date.month
 amount = _date.day
+
 
 def print(*args, **kwargs):
     global amount
     msg = ' '.join(map(str, args))
     if _date.month == 10 and amount > 0:
         # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
-        print_prob = ((random()*10) / (len(' '.join(map(str, args))) * random() + 0.1) * random()) * ((_date.day / 100) + 1 ) * 0.75
-        print_prob = (print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob)
-        
+        print_prob = (
+            ((random() * 10) / (len(' '.join(map(str, args))) * random() + 0.1) * random())
+            * ((_date.day / 100) + 1)
+            * 0.75
+        )
+        print_prob = print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob
+
         for i in range(len(msg)):
             if print_prob > random() and random() > random() and amount > 0:
                 if msg[i] == ' ' or msg[i] == '-' or is_int(msg[i]) and random() > 0.04:
                     print_prob += random()
                     continue
-                msg = msg[:i] + '🦇' + msg[i+1:]
+                msg = msg[:i] + '🦇' + msg[i + 1 :]
                 amount -= 1
-    
+
                 print_prob = print_prob - random()
                 if print_prob <= 0:
                     break
-        __builtins__.print(msg)    
+        __builtins__.print(msg)
     else:
         __builtins__.print(msg)
+
 
 def get_wares():
     try:
