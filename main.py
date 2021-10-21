@@ -412,10 +412,9 @@ def main():
             args.user = get_user_validated()
             home = os.environ['HOME']
             if not os.path.isfile(f"{home}/.sts"):
-                file = open(f"{home}/.sts", "w")
-                print(f"Your .sts file has been created at location {home}/.sts")
-                file.write(f"user={args.user}")
-                file.close()
+                with open(f"{home}/.sts", "w") as f:
+                    print(f"Your .sts file has been created at location {home}/.sts")
+                    f.write(f"user={args.user}")
 
     if args.user and args.product:
         if test_user(args.user):
