@@ -9,6 +9,7 @@ import sys
 import os
 import urllib3
 import configparser
+import sys
 import builtins as __builtin__
 
 from datetime import date
@@ -147,7 +148,7 @@ def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
     for ware in wares:
-        if re.match("<\w\d>", ware[1]):
+        if re.match("<\w\d>", ware[1]) and (sys.platform == 'linux' or is_windows_terminal):
             r = re.sub("<br>", ' - ', ware[1])
             r = re.sub("<\w\d> | </\w\d>|<\w\w>|</\w\d>", '', r)
             print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
@@ -462,7 +463,9 @@ def main():
     if args.setup:
         if args.user is None:
             args.user = get_user_validated()
-            home = os.environ['HOME']
+
+        if test_user(args.user):
+            home = os.path.expanduser('~')
             if not os.path.isfile(f"{home}/.sts"):
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
