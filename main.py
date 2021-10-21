@@ -7,7 +7,6 @@ import sys
 import os
 import urllib3
 import configparser
-import sys
 from pprint import pprint
 
 urllib3.disable_warnings()
@@ -65,10 +64,12 @@ SHORTHANDS = {
 
 
 def is_int(value):
+    if not value:
+        return False
     try:
         int(value)
         return True
-    except:
+    except ValueError:
         return False
 
 
@@ -76,7 +77,7 @@ def get_wares():
     try:
         session = requests.Session()
         r = session.get(f"{url}/{room}/", verify=False)
-    except:
+    except Exception:
         print('Could not fetch wares from Stregsystement...')
         raise SystemExit(1)
 
@@ -174,7 +175,7 @@ def get_history(user_id):
     try:
         session = requests.Session()
         r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
-    except:
+    except Exception:
         print('Kunne ikke oprette forbindelse til Stregsystenet')
         raise SystemExit(1)
 
@@ -337,7 +338,7 @@ def get_qr(user, amount):
         print('Mindste indsætningsbeløb er 50. Alt under, håndteres ikke.')
         return
 
-    print(f"Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
+    print("Skan QR koden nedenfor, for at indsætte penge på din stregkonto")
     session = requests.Session()
     r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
     if r.status_code != 200:
@@ -400,7 +401,7 @@ def update_script():
 def main():
     args = parse(sys.argv[1::])
 
-    if args.update == True:
+    if args.update is True:
         update_script()
         return
 
@@ -415,7 +416,7 @@ def main():
         args.user = get_saved_user()
 
     if args.setup:
-        if args.user == None:
+        if args.user is None:
             args.user = get_user_validated()
 
         if test_user(args.user):
@@ -443,11 +444,11 @@ def main():
         test_user(args.user)
         get_history(user_id)
 
-    if args.user == None or args.item == None:
-        if args.user == None:
+    if args.user is None or args.item is None:
+        if args.user is None:
             args.user = get_user_validated()
 
-        if args.user != None:
+        if args.user is not None:
             if args.money:
                 get_qr(args.user, args.money)
             else:
@@ -468,5 +469,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (KeyboardInterrupt, EOFError) as e:
+    except (KeyboardInterrupt, EOFError):
         raise SystemExit(0)
