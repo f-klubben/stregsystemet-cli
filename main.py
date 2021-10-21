@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+from __future__ import print_function
 
+from random import random
 import requests
 import re
 import argparse
@@ -7,6 +9,9 @@ import sys
 import os
 import urllib3
 import configparser
+import builtins as __builtin__
+
+from datetime import date
 from pprint import pprint
 
 urllib3.disable_warnings()
@@ -72,6 +77,31 @@ def is_int(value):
     except ValueError:
         return False
 
+_date = date.today()
+month = _date.month
+amount = _date.day
+
+def print(*args, **kwargs):
+    global amount
+    msg = ' '.join(map(str, args))
+    if _date.month == 10 and amount > 0:
+        print_prob = ((random()*10) / (len(' '.join(map(str, args))) * random() + 0.1) * random()) * ((_date.day / 100) + 1 ) * 0.75
+        print_prob = (print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob)
+        
+        for i in range(len(msg)):
+            if print_prob > random() and random() > random() and amount > 0:
+                if msg[i] == ' ' or msg[i] == '-' or is_int(msg[i]) and random() > 0.04:
+                    print_prob += random()
+                    continue
+                msg = msg[:i] + '🦇' + msg[i+1:]
+                amount -= 1
+    
+                print_prob = print_prob - random()
+                if print_prob <= 0:
+                    break
+        __builtins__.print(msg)    
+    else:
+        __builtins__.print(msg)
 
 def get_wares():
     try:
