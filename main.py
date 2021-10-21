@@ -465,14 +465,11 @@ def main():
             args.user = get_user_validated()
 
         if test_user(args.user):
-            if sys.platform == "win32":
-                home = os.path.expanduser('~')
-            else:
-                home = os.environ['HOME']
-            file = open(f"{home}/.sts", "w")
-            print(f"Your .sts file has been created at location {home}/.sts")
-            file.write(f"user={args.user}")
-            file.close()
+            home = os.path.expanduser('~')
+            if not os.path.isfile(f"{home}/.sts"):
+                with open(f"{home}/.sts", "w") as f:
+                    print(f"Your .sts file has been created at location {home}/.sts")
+                    f.write(f"user={args.user}")
 
     if args.user and args.product:
         if test_user(args.user):
