@@ -85,6 +85,7 @@ def print(*args, **kwargs):
     global amount
     msg = ' '.join(map(str, args))
     if _date.month == 10 and amount > 0:
+        # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
         print_prob = ((random()*10) / (len(' '.join(map(str, args))) * random() + 0.1) * random()) * ((_date.day / 100) + 1 ) * 0.75
         print_prob = (print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob)
         
