@@ -182,7 +182,7 @@ def get_history(user_id):
     body = r.text
     item_date_list = re.findall(r'<td>(\d+\.\s\w+\s\d+\s\d+:\d+)</td>', body)
     item_name_list = [x for x in re.findall(r'<td>(.+?)</td>', body) if x not in item_date_list][
-        0:len(item_date_list)
+        0 : len(item_date_list)
     ]
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+)</td>', body)
     history = []
