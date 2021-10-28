@@ -424,18 +424,22 @@ def calculate_sha256_binary(binary) -> str:
     return hashlib.sha256(binary).hexdigest()
 
 
-def update_script():
-    if not os.access(__file__, os.W_OK):
-        print('Stregsystemet-CLI er i læs-kun modus og kan derfor ikke opdateres. Er du på NIX operativsystem?')
-        return
-
+def has_version_difference():
     r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
     newest_file_hash = calculate_sha256_binary(r.content)
     with open(__file__, 'rb') as f:
         data = f.read()
     current_file_hash = calculate_sha256_binary(data)
 
-    if newest_file_hash == current_file_hash:
+    return newest_file_hash != current_file_hash
+
+
+def update_script():
+    if not os.access(__file__, os.W_OK):
+        print('Stregsystemet-CLI er i læs-kun modus og kan derfor ikke opdateres. Er du på NIX operativsystem?')
+        return
+
+    if not has_version_difference():
         return
 
     # I perform open heart surgery on myself :)
@@ -444,6 +448,9 @@ def update_script():
 
 
 def main():
+    if has_version_difference():
+        print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.")
+
     args = parse(sys.argv[1::])
 
     if args.update is True:
