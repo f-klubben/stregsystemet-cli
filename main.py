@@ -4,7 +4,6 @@ from __future__ import print_function
 from random import random
 import requests
 import re
-import time
 import argparse
 import sys
 import os
@@ -451,7 +450,6 @@ def update_script():
 def main():
     if has_version_difference():
         print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.")
-        time.sleep(1)
 
     args = parse(sys.argv[1::])
 
