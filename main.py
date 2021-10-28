@@ -439,7 +439,7 @@ def update_script():
     if not os.access(__file__, os.W_OK):
         print('Stregsystemet-CLI er i læs-kun modus og kan derfor ikke opdateres. Er du på NIX operativsystem?')
         return
-    
+
     if not has_version_difference():
         return
 
