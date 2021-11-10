@@ -101,8 +101,9 @@ def print(*args, **kwargs):
         batted = False
         for i in range(len(msg)):
             if print_prob > random() and random() > random() and bat_amount > 0 and not batted:
-                if msg[i] == '-' or is_int(msg[i]) and random() > 0.04:
-                    print_prob += random()
+                if msg[i] == '-' or is_int(msg[i]):
+                    if random() > 0.04:
+                        print_prob += random()
                     continue
                 msg = msg[:i] + '🦇' + msg[i + 1 :]
                 bat_amount -= 1
