@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# START_STS
 from __future__ import print_function
 
 from random import random
@@ -445,7 +446,9 @@ def update_script():
 
     # I perform open heart surgery on myself :)
     with open(__file__, 'w') as f:
-        f.write(r.text)
+        r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+        if 'START_STS' in r.text and 'END_STS' in r.text:
+            f.write(r.text)
 
 
 def main():
@@ -524,3 +527,5 @@ if __name__ == '__main__':
         main()
     except (KeyboardInterrupt, EOFError):
         raise SystemExit(0)
+
+# END_STS
