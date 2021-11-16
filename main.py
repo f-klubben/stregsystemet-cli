@@ -67,6 +67,8 @@ SHORTHANDS = {
     'nordic': 1901,
     'fritfit': 1902,
     'månedens': 1903,
+    'te': 1904,
+    'the': 1904
 }
 
 
