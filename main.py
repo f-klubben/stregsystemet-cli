@@ -120,6 +120,16 @@ def print(*args, **kwargs):
     lines_counted += 1
 
 
+def format_triple(ware, index_0, index_1, index_2):
+    r = ware[1]
+    if re.match(r'<\w+?\d*?>', ware[1]):
+        r = re.sub(r'<br>', ' - ', ware[1])
+        r = re.sub(r'</?\w+?\d*?>', '', r)
+        print('\u001B[31m{0:<{1}} {2:<{3}} {4:<{5}}\u001B[0m'.format(ware[0], index_0, r, index_1, ware[2], index_2))
+    else:
+        print('{0:<{1}} {2:<{3}} {4:<{5}}'.format(ware[0], index_0, r, index_1, ware[2], index_2))
+
+
 def get_wares():
     try:
         session = requests.Session()
@@ -149,13 +159,7 @@ wares = get_wares()
 def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
-    for ware in wares:
-        if re.match("<\w\d>", ware[1]):
-            r = re.sub("<br>", ' - ', ware[1])
-            r = re.sub("<\w\d> | </\w\d>|<\w\w>|</\w\d>", '', r)
-            print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
-        else:
-            print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
+    [format_triple(ware, 8, 50, 10) for ware in wares]
 
 
 def print_no_user_help(user):
@@ -207,8 +211,7 @@ def get_user_validated():
 def print_history(wares):
     print('{:<29} {:<40}  {:<10}'.format('Date', 'Item', 'Price'))
     print('-' * 80)
-    for ware in wares:
-        print('{:<29} {:<40}  {:<10}'.format(ware[0], ware[1], ware[2]))
+    [format_triple(ware, 29, 40, 10) for ware in wares]
 
     print('')
     print('')
