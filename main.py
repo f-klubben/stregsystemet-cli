@@ -241,6 +241,9 @@ def get_history(user_id):
     print_history(history)
 
 
+is_strandvejen = False
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
@@ -299,6 +302,11 @@ def sale(user, itm, count=1):
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
 Du kan foretage indbetaling via MobilePay'''
         )
+    global is_strandvejen
+    if is_strandvejen:
+        import time
+
+        time.sleep(5)
         raise SystemExit
 
 
@@ -322,6 +330,9 @@ def parse(args):
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     parser.add_argument('-o', '--shorthands', action='store_true', help='Shows shorthands')
+    parser.add_argument(
+        '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
+    )
     parser.add_argument(
         '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
     )
@@ -458,6 +469,9 @@ def main():
         print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.")
 
     args = parse(sys.argv[1::])
+
+    global is_strandvejen
+    is_strandvejen = args.strandvejen
 
     if args.update is True:
         update_script()
