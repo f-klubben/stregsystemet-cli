@@ -1,0 +1,12 @@
+
+
+def pre_argparse(parser) -> None:
+    parser.add_argument('-t', action='store_true', help='Test argument 2')
+
+
+def run(wares, args, arg_array, parser, shorthands) -> None:
+    shorthands['apple'] = 0
+
+
+def post_run(wares, args, arg_array, parser, shorthands) -> None:
+    pass
