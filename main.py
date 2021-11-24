@@ -276,7 +276,7 @@ def sale(user, itm, count=1):
         headers=referer_header,
     )
     session.close()
-    if sale.status_code != 200:
+    if sale.status_code != 200 and sale.status_code != 402:  # Stregforbud har 402, men no more inventory har ikke????
         print("Du har ikke købt din vare. Prøv igen", sale.status_code)
         raise SystemExit
     elif 'STREGFORBUD!' not in sale.text:
@@ -306,9 +306,9 @@ def sale(user, itm, count=1):
 
     else:
         print(
-            '''STREGFORBUD!
+            f'''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
-Du kan foretage indbetaling via MobilePay'''
+Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode'''
         )
     global is_strandvejen
     if is_strandvejen:
@@ -318,8 +318,7 @@ Du kan foretage indbetaling via MobilePay'''
         raise SystemExit
 
 
-def parse(args):
-    parser = argparse.ArgumentParser()
+def parse(args, parser):
     parser.add_argument(
         '-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username'
     )
@@ -338,6 +337,7 @@ def parse(args):
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     parser.add_argument('-o', '--shorthands', action='store_true', help='Shows shorthands')
+    parser.add_argument('-z', '--noplugins', action='store_true', help='Disables the plugin loader')
     parser.add_argument(
         '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
     )
@@ -473,10 +473,31 @@ def update_script():
 
 
 def main():
+    arg_array = sys.argv[1::]
+
+    parser = argparse.ArgumentParser()
+
+    if '-z' not in arg_array and '--noplugins' not in arg_array:
+        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+            plugin = __import__(f'plugins.{item.replace(".py", "")}')
+            plugin = getattr(plugin, item.replace('.py', ''))
+            plugin.pre_argparse(parser)
+
     if has_version_difference():
         print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr)
 
-    args = parse(sys.argv[1::])
+    args = parse(arg_array, parser)
+
+    read_config()
+ 
+    if args.user is None:
+        args.user = get_saved_user()
+
+    if not args.noplugins:
+        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+            plugin = __import__(f'plugins.{item.replace(".py", "")}')
+            plugin = getattr(plugin, item.replace('.py', ''))
+            plugin.run(wares, args, arg_array, parser, SHORTHANDS)
 
     global is_strandvejen
     is_strandvejen = args.strandvejen
@@ -490,7 +511,6 @@ def main():
         pprint(SHORTHANDS)
         return
 
-    read_config()
 
     if args.user is None:
         args.user = get_saved_user()
@@ -544,6 +564,12 @@ def main():
                 sale(args.user, args.item, args.count)
         else:
             print_no_user_help(args.user)
+
+    if not args.noplugins:
+        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+            plugin = __import__(f'plugins.{item.replace(".py", "")}')
+            plugin = getattr(plugin, item.replace('.py', ''))
+            plugin.run(wares, args, arg_array, parser, SHORTHANDS)
 
 
 if __name__ == '__main__':
