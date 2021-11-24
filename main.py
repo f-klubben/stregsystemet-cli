@@ -308,7 +308,7 @@ def sale(user, itm, count=1):
         print(
             f'''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
-Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode. Den vare du prøvede at købe kostede {ware[0][1]}'''
+Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode. Den vare du prøvede at købe kostede {ware[0][2]}'''
         )
     global is_strandvejen
     if is_strandvejen:
