@@ -423,8 +423,9 @@ def update_config_file(dirs):
             continue
         with open(path, 'r') as original:
             data = original.read()
-        with open(path, 'w') as modified:
-            modified.write('[sts]\n' + data)
+        if not data.startswith('[sts]'):
+            with open(path, 'w') as modified:
+                modified.write('[sts]\n' + data)
 
 
 def read_config():
@@ -439,6 +440,10 @@ def read_config():
 
 def get_saved_user() -> str:
     return config.get('sts', 'user', fallback=None)
+
+
+def get_plugin_dir() -> str:
+    return config.get('sts', 'plugin_dir', fallback=None)
 
 
 def calculate_sha256_binary(binary) -> str:
@@ -474,6 +479,9 @@ def update_script():
 
 def main():
     arg_array = sys.argv[1::]
+
+    if not os.path.exists(get_plugin_dir() or 'plugins/') and '-z' not in arg_array:
+        arg_array.insert(0, '-z')
 
     parser = argparse.ArgumentParser()
 
