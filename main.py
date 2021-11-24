@@ -478,7 +478,11 @@ def main():
     parser = argparse.ArgumentParser()
 
     if '-z' not in arg_array and '--noplugins' not in arg_array:
-        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+        for item in [
+            item
+            for item in os.listdir('plugins')
+            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+        ]:
             plugin = __import__(f'plugins.{item.replace(".py", "")}')
             plugin = getattr(plugin, item.replace('.py', ''))
             plugin.pre_argparse(parser)
@@ -489,12 +493,16 @@ def main():
     args = parse(arg_array, parser)
 
     read_config()
- 
+
     if args.user is None:
         args.user = get_saved_user()
 
     if not args.noplugins:
-        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+        for item in [
+            item
+            for item in os.listdir('plugins')
+            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+        ]:
             plugin = __import__(f'plugins.{item.replace(".py", "")}')
             plugin = getattr(plugin, item.replace('.py', ''))
             plugin.run(wares, args, arg_array, parser, SHORTHANDS)
@@ -510,7 +518,6 @@ def main():
         print("You can use the following shorthand for purchasing")
         pprint(SHORTHANDS)
         return
-
 
     if args.user is None:
         args.user = get_saved_user()
@@ -566,7 +573,11 @@ def main():
             print_no_user_help(args.user)
 
     if not args.noplugins:
-        for item in [item for item in os.listdir('plugins') if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')]:
+        for item in [
+            item
+            for item in os.listdir('plugins')
+            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+        ]:
             plugin = __import__(f'plugins.{item.replace(".py", "")}')
             plugin = getattr(plugin, item.replace('.py', ''))
             plugin.run(wares, args, arg_array, parser, SHORTHANDS)
