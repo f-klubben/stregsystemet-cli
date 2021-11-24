@@ -493,8 +493,8 @@ def set_up_plugins(arg_array):
 def main():
     arg_array = sys.argv[1::]
 
-    arg_array = read_config(arg_array)
-    set_up_plugins()
+    read_config()
+    arg_array = set_up_plugins(arg_array)
 
     parser = argparse.ArgumentParser()
 
