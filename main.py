@@ -10,7 +10,6 @@ import sys
 import os
 import urllib3
 import configparser
-import sys
 import builtins as __builtin__
 
 from datetime import date
@@ -305,10 +304,11 @@ def sale(user, itm, count=1):
         print(f'Der er {balance:.2f} stregdollars - eller {itm_units_left} ' f'x {ware[0][1]} - tilbage')
 
     else:
+        ware = [x for x in wares if x[0] == itm]
         print(
             f'''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
-Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode'''
+Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode. Den vare du prøvede at købe kostede {ware[0][1]}'''
         )
     global is_strandvejen
     if is_strandvejen:
