@@ -121,9 +121,9 @@ def print(*args, **kwargs):
                     break
             else:
                 batted = False
-        __builtins__.print(msg)
+        __builtins__.print(msg, **kwargs)
     else:
-        __builtins__.print(msg)
+        __builtins__.print(msg, **kwargs)
     lines_counted += 1
 
 
@@ -474,7 +474,7 @@ def update_script():
 
 def main():
     if has_version_difference():
-        print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.")
+        print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr)
 
     args = parse(sys.argv[1::])
 
