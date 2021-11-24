@@ -1,12 +1,16 @@
-
-
+# This block runs before the argument parser is created.
+# It allows the user to create additional arguments.
 def pre_argparse(parser) -> None:
-    parser.add_argument('-t', action='store_true', help='Test argument 2')
+    pass
 
 
+# This block will run inside the code. This is where
+# the user places their custom logic
 def run(wares, args, arg_array, parser, shorthands) -> None:
-    shorthands['apple'] = 0
+    pass
 
 
+# This block runs at the very end of main and may not
+# be reached, due to some 'raise systemExit'
 def post_run(wares, args, arg_array, parser, shorthands) -> None:
     pass
