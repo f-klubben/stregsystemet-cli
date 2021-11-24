@@ -477,7 +477,7 @@ def update_script():
             f.write(r.text)
 
 
-def set_up_plugins():
+def set_up_plugins(arg_array):
     if not get_plugin_dir() and not os.path.exists('plugins/') and '-z' not in arg_array:
         arg_array.insert(0, '-z')
     elif get_plugin_dir():
@@ -487,11 +487,13 @@ def set_up_plugins():
             with open(f'{pl_dir}__init__.py', 'w') as f:
                 f.write(0)
 
+    return arg_array
+
 
 def main():
     arg_array = sys.argv[1::]
 
-    read_config()
+    arg_array = read_config(arg_array)
     set_up_plugins()
 
     parser = argparse.ArgumentParser()
