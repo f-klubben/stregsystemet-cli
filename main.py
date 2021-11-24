@@ -477,11 +477,22 @@ def update_script():
             f.write(r.text)
 
 
+def set_up_plugins():
+    if not get_plugin_dir() and not os.path.exists('plugins/') and '-z' not in arg_array:
+        arg_array.insert(0, '-z')
+    elif get_plugin_dir():
+        pl_dir = get_plugin_dir()
+        pl_dir = f'{pl_dir}' if not pl_dir.endswith('/') or not pl_dir.endswith('\\') else pl_dir
+        if not os.path.exists(f'{pl_dir}__init__.py'):
+            with open(f'{pl_dir}__init__.py', 'w') as f:
+                f.write(0)
+
+
 def main():
     arg_array = sys.argv[1::]
 
-    if not os.path.exists(get_plugin_dir() or 'plugins/') and '-z' not in arg_array:
-        arg_array.insert(0, '-z')
+    read_config()
+    set_up_plugins()
 
     parser = argparse.ArgumentParser()
 
@@ -499,8 +510,6 @@ def main():
         print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr)
 
     args = parse(arg_array, parser)
-
-    read_config()
 
     if args.user is None:
         args.user = get_saved_user()
