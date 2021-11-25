@@ -495,18 +495,19 @@ def main():
 
     read_config()
     arg_array = set_up_plugins(arg_array)
-
+    plugins = [
+            getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+            for item in os.listdir(get_plugin_dir() or 'plugins')
+            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+        ]
     parser = argparse.ArgumentParser()
 
     if '-z' not in arg_array and '--noplugins' not in arg_array:
-        for item in [
-            item
-            for item in os.listdir('plugins')
-            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-        ]:
-            plugin = __import__(f'plugins.{item.replace(".py", "")}')
-            plugin = getattr(plugin, item.replace('.py', ''))
-            plugin.pre_argparse(parser)
+        for plugin in plugins:
+            try:
+                plugin.pre_argparse(parser)
+            except:
+                pass
 
     if has_version_difference():
         print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr)
@@ -517,14 +518,11 @@ def main():
         args.user = get_saved_user()
 
     if not args.noplugins:
-        for item in [
-            item
-            for item in os.listdir('plugins')
-            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-        ]:
-            plugin = __import__(f'plugins.{item.replace(".py", "")}')
-            plugin = getattr(plugin, item.replace('.py', ''))
-            plugin.run(wares, args, arg_array, parser, SHORTHANDS)
+        for plugin in plugins:
+            try:
+                plugin.run(wares, args, arg_array, parser, SHORTHANDS)
+            except:
+                pass
 
     global is_strandvejen
     is_strandvejen = args.strandvejen
@@ -551,6 +549,7 @@ def main():
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
                     f.write(f"user={args.user}")
+                    f.write('; plugin_dir=')
 
     if args.user and args.product:
         if test_user(args.user):
@@ -592,14 +591,11 @@ def main():
             print_no_user_help(args.user)
 
     if not args.noplugins:
-        for item in [
-            item
-            for item in os.listdir('plugins')
-            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-        ]:
-            plugin = __import__(f'plugins.{item.replace(".py", "")}')
-            plugin = getattr(plugin, item.replace('.py', ''))
-            plugin.run(wares, args, arg_array, parser, SHORTHANDS)
+        for plugin in plugins:
+            try:
+                plugin.run(wares, args, arg_array, parser, SHORTHANDS)
+            except:
+                pass
 
 
 if __name__ == '__main__':
