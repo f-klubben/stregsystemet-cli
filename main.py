@@ -496,10 +496,10 @@ def main():
     read_config()
     arg_array = set_up_plugins(arg_array)
     plugins = [
-            getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
-            for item in os.listdir(get_plugin_dir() or 'plugins')
-            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-        ]
+        getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+        for item in os.listdir(get_plugin_dir() or 'plugins')
+        if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+    ]
     parser = argparse.ArgumentParser()
 
     if '-z' not in arg_array and '--noplugins' not in arg_array:
