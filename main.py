@@ -10,23 +10,27 @@ import sys
 import os
 import urllib3
 import configparser
-import builtins as __builtin__
+import builtins as __builtins__
 
 from datetime import date
 from pprint import pprint
 
 urllib3.disable_warnings()
 
+CONSTANTS = {
+    'url': 'https://stregsystem.fklub.dk',
+    'room': '10',
+    'exit_words': [':q', 'exit', 'quit', 'q'],
+    'update_url': 'https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py',
+    'debug': False,
+}
+
 if sys.argv[0] == './main.py':
-    url = 'http://localhost:8000'
-    room = '1'
-else:
-    url = 'https://stregsystem.fklub.dk'
-    room = '10'
+    CONSTANTS['url'] = 'http://localhost:8000'
+    CONSTANTS['room'] = '1'
 
 is_windows = sys.platform == "win32"
-exit_words = [':q', 'exit', 'quit', 'q']
-referer_header = {'Referer': url}
+referer_header = {'Referer': CONSTANTS['url']}
 balance = float()
 config = configparser.ConfigParser()
 
@@ -139,7 +143,7 @@ def format_triple(ware, index_0, index_1, index_2):
 def get_wares():
     try:
         session = requests.Session()
-        r = session.get(f"{url}/{room}/", verify=False)
+        r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     except Exception:
         print('Could not fetch wares from Stregsystement...')
         raise SystemExit(1)
@@ -177,9 +181,11 @@ def print_no_user_help(user):
 
 def test_user(user):
     session = requests.Session()
-    r = session.get(f"{url}/{room}/", verify=False)
+    r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
@@ -187,7 +193,13 @@ def test_user(user):
     # pprint(json)
     cookies = {'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'}
     # pprint(cookies)
-    sale = session.post(f"{url}/{room}/sale/", verify=False, data=json, cookies=cookies, headers=referer_header)
+    sale = session.post(
+        f"{CONSTANTS['url']}/{CONSTANTS['room']}/sale/",
+        verify=False,
+        data=json,
+        cookies=cookies,
+        headers=referer_header,
+    )
     session.close()
     if sale.status_code != 200:
         print('Noget gik galt.', sale.status_code, sale.content)
@@ -198,7 +210,7 @@ def test_user(user):
     global balance
     balance = float(re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1))
     global user_id
-    user_id = re.search(r'\<a href="/' + room + '/user/(\d+)"', sale.text).group(1)
+    user_id = re.search(r'\<a href="/' + CONSTANTS['room'] + '/user/(\d+)"', sale.text).group(1)
     return True
 
 
@@ -206,7 +218,7 @@ def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
 
     while not user or not test_user(user):
-        if user.lower() in exit_words:
+        if user.lower() in CONSTANTS['exit_words']:
             raise SystemExit
         print(f"'{user}' is not a valid user")
         user = input('Hvad er dit brugernavn? ')
@@ -230,7 +242,7 @@ def get_history(user_id):
 
     try:
         session = requests.Session()
-        r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
+        r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/user/{user_id}", verify=False)
     except Exception:
         print('Kunne ikke oprette forbindelse til Stregsystenet')
         raise SystemExit(1)
@@ -261,15 +273,17 @@ def sale(user, itm, count=1):
         itm = str(SHORTHANDS[itm])
 
     session = requests.Session()
-    r = session.get(f"{url}/{room}/", verify=False)
+    r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
     json = {'quickbuy': f"{user} {itm}:{count}", 'csrfmiddlewaretoken': token.group(1)}
     sale = session.post(
-        f"{url}/{room}/sale/",
+        f"{CONSTANTS['url']}/{CONSTANTS['room']}/sale/",
         data=json,
         cookies={'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'},
         headers=referer_header,
@@ -352,7 +366,7 @@ def parse(args, parser):
 def get_item(ware_ids):
     count = 1
     item_id = input('Id> ')
-    if item_id.lower() in exit_words:
+    if item_id.lower() in CONSTANTS['exit_words']:
         return 'exit', 0
 
     if ':' in item_id:
@@ -367,7 +381,7 @@ def get_item(ware_ids):
             return
 
     while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
-        if item_id.lower() in exit_words:
+        if item_id.lower() in CONSTANTS['exit_words']:
             return 'exit', 0
 
         print(f"'{item_id}' is not a valid item")
@@ -381,12 +395,16 @@ def user_buy(user):
         print('Hej,', user)
         print(f'Du har {balance:.2f} stregdollars')
         print('')
-        print("Hvad ønsker at købe i Stregsystemet? (Skriv en af", str(exit_words), "for at komme ud af interfacet)")
+        print(
+            "Hvad ønsker at købe i Stregsystemet? (Skriv en af",
+            str(CONSTANTS['exit_words']),
+            "for at komme ud af interfacet)",
+        )
         print_wares(wares)
         print('')
         while True:
             item, count = get_item([x[0] for x in wares])
-            if item in exit_words:
+            if item in CONSTANTS['exit_words']:
                 raise SystemExit
             elif item is None:
                 continue
@@ -411,6 +429,8 @@ def get_qr(user, amount):
     r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     print(r.content.decode('UTF-8'))
@@ -453,7 +473,7 @@ def calculate_sha256_binary(binary) -> str:
 
 
 def has_version_difference():
-    r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+    r = requests.get(CONSTANTS['update_url'])
     newest_file_hash = calculate_sha256_binary(r.content)
     with open(__file__, 'rb') as f:
         data = f.read()
@@ -472,7 +492,7 @@ def update_script():
 
     # I perform open heart surgery on myself :)
     with open(__file__, 'w') as f:
-        r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+        r = requests.get(CONSTANTS['update_url'])
         if 'START_STS' in r.text and 'END_STS' in r.text:
             f.write(r.text)
 
@@ -505,8 +525,10 @@ def main():
     if '-z' not in arg_array and '--noplugins' not in arg_array:
         for plugin in plugins:
             try:
-                plugin.pre_argparse(parser)
-            except:
+                plugin.pre_argparse(parser, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
                 pass
 
     if has_version_difference():
@@ -520,8 +542,10 @@ def main():
     if not args.noplugins:
         for plugin in plugins:
             try:
-                plugin.run(wares, args, arg_array, parser, SHORTHANDS)
-            except:
+                plugin.run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
                 pass
 
     global is_strandvejen
@@ -593,8 +617,10 @@ def main():
     if not args.noplugins:
         for plugin in plugins:
             try:
-                plugin.run(wares, args, arg_array, parser, SHORTHANDS)
-            except:
+                plugin.post_run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
                 pass
 
 
