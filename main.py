@@ -522,7 +522,9 @@ def main():
     ]
     parser = argparse.ArgumentParser()
 
-    if '-z' not in arg_array and '--noplugins' not in arg_array:
+    _args = parse(arg_array, parser)
+
+    if not _args.noplugins:
         for plugin in plugins:
             try:
                 plugin.pre_argparse(parser, CONSTANTS)
