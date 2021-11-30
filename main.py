@@ -332,7 +332,14 @@ Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til god
         raise SystemExit
 
 
-def parse(args, parser):
+def pre_parse(args, parser: argparse.ArgumentParser):
+    parser.add_argument('-z', '--noplugins', action='store_true', help='Disables the plugin loader')
+    args, _ = parser.parse_known_args(args)
+    return args
+
+
+def parse(args, parser: argparse.ArgumentParser):
+
     parser.add_argument(
         '-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username'
     )
@@ -360,7 +367,8 @@ def parse(args, parser):
     )
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
-    return parser.parse_args(args)
+    args = parser.parse_args(args)
+    return args
 
 
 def get_item(ware_ids):
@@ -521,8 +529,8 @@ def main():
         if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
     ]
     parser = argparse.ArgumentParser()
-
-    _args = parse(arg_array, parser)
+    _parser = argparse.ArgumentParser()
+    _args = pre_parse(arg_array, _parser)
 
     if not _args.noplugins:
         for plugin in plugins:
