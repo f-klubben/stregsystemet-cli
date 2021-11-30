@@ -2,3 +2,6 @@
 # Black
 .venv/
 venv/
+
+plugins/*.py
+plugins/__pycache__

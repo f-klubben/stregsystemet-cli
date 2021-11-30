@@ -1,0 +1,16 @@
+# This block runs before the argument parser is created.
+# It allows the user to create additional arguments.
+def pre_argparse(parser: argparse.ArgumentParser, constants: dict) -> None:
+    pass
+
+
+# This block will run inside the code. This is where
+# the user places their custom logic
+def run(wares: list, args: list, arg_array: list, shorthands: dict, constants: dict) -> None:
+    pass
+
+
+# This block runs at the very end of main and may not
+# be reached, due to some 'raise systemExit'
+def post_run(wares: list, args: list, arg_array: list, shorthands: dict, constants: dict) -> None:
+    pass
