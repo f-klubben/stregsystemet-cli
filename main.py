@@ -536,7 +536,7 @@ def main():
         plugins = []
 
     parser = argparse.ArgumentParser()
-    _parser = argparse.ArgumentParser()
+    _parser = argparse.ArgumentParser(add_help=False)
     _args = pre_parse(arg_array, _parser)
 
     if not _args.noplugins:
