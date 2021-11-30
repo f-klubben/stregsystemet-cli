@@ -534,16 +534,22 @@ def main():
     _parser = argparse.ArgumentParser(add_help=False)
     _args = pre_parse(arg_array, _parser)
 
-    try:
-        plugins = [
-            getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
-            for item in os.listdir(get_plugin_dir() or 'plugins')
-            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-        ]
-    except:
+    if os.path.exists(get_plugin_dir() or 'plugins'):
+        try:
+            plugins = [
+                getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+                for item in os.listdir(get_plugin_dir() or 'plugins')
+                if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+            ]
+        except:
+            if not _args.strandvejen:
+                print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+            plugins = []
+    else:
         if not _args.strandvejen:
             print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
         plugins = []
+
 
     if not _args.noplugins:
         for plugin in plugins:
