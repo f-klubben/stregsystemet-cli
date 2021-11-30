@@ -106,7 +106,7 @@ def print(*args, **kwargs):
                     if random() > 0.04:
                         print_prob += random()
                     continue
-                msg = msg[:i] + '🦇' + msg[i + 1 :]
+                msg = msg[:i] + '\U0001F987' + msg[i + 1 :]
                 bat_amount -= 1
                 batted = True
                 print_prob = print_prob - random()
