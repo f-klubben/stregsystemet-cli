@@ -525,11 +525,16 @@ def main():
 
     read_config()
     arg_array = set_up_plugins(arg_array)
-    plugins = [
-        getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
-        for item in os.listdir(get_plugin_dir() or 'plugins')
-        if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-    ]
+    try:
+        plugins = [
+            getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+            for item in os.listdir(get_plugin_dir() or 'plugins')
+            if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+        ]
+    except:
+        print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+        plugins = []
+
     parser = argparse.ArgumentParser()
     _parser = argparse.ArgumentParser()
     _args = pre_parse(arg_array, _parser)
