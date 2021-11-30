@@ -339,6 +339,7 @@ def pre_parse(args, parser: argparse.ArgumentParser):
     parser.add_argument(
         '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
     )
+    parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     args, _ = parser.parse_known_args(args)
     return args
 
