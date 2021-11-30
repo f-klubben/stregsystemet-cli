@@ -336,6 +336,9 @@ Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til god
 
 def pre_parse(args, parser: argparse.ArgumentParser):
     parser.add_argument('-z', '--noplugins', action='store_true', help='Disables the plugin loader')
+    parser.add_argument(
+        '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
+    )
     args, _ = parser.parse_known_args(args)
     return args
 
@@ -525,6 +528,11 @@ def main():
 
     read_config()
     arg_array = set_up_plugins(arg_array)
+
+    parser = argparse.ArgumentParser()
+    _parser = argparse.ArgumentParser(add_help=False)
+    _args = pre_parse(arg_array, _parser)
+
     try:
         plugins = [
             getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
@@ -532,12 +540,10 @@ def main():
             if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
         ]
     except:
-        print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+        if not _args.strandvejen:
+            print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
         plugins = []
 
-    parser = argparse.ArgumentParser()
-    _parser = argparse.ArgumentParser(add_help=False)
-    _args = pre_parse(arg_array, _parser)
 
     if not _args.noplugins:
         for plugin in plugins:
