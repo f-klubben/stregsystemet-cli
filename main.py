@@ -505,7 +505,7 @@ def update_script():
         return
 
     # I perform open heart surgery on myself :)
-    with open(__file__, 'w') as f:
+    with open(__file__, 'w', encoding="utf-8") as f:
         r = requests.get(CONSTANTS['update_url'])
         if 'START_STS' in r.text and 'END_STS' in r.text:
             f.write(r.text)
