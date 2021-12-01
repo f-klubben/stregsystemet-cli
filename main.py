@@ -516,7 +516,7 @@ def set_up_plugins(arg_array):
         arg_array.insert(0, '-z')
     elif get_plugin_dir():
         pl_dir = get_plugin_dir()
-        pl_dir = f'{pl_dir}' if not pl_dir.endswith('/') or not pl_dir.endswith('\\') else pl_dir
+        pl_dir = f'{pl_dir}/' if not pl_dir.endswith('/') or not pl_dir.endswith('\\') else pl_dir
         if not os.path.exists(f'{pl_dir}__init__.py'):
             with open(f'{pl_dir}__init__.py', 'w') as f:
                 f.write(0)
