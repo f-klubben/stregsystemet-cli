@@ -10,24 +10,27 @@ import sys
 import os
 import urllib3
 import configparser
-import sys
-import builtins as __builtin__
+import builtins as __builtins__
 
 from datetime import date
 from pprint import pprint
 
 urllib3.disable_warnings()
 
+CONSTANTS = {
+    'url': 'https://stregsystem.fklub.dk',
+    'room': '10',
+    'exit_words': [':q', 'exit', 'quit', 'q'],
+    'update_url': 'https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py',
+    'debug': False,
+}
+
 if sys.argv[0] == './main.py':
-    url = 'http://localhost:8000'
-    room = '1'
-else:
-    url = 'https://stregsystem.fklub.dk'
-    room = '10'
+    CONSTANTS['url'] = 'http://localhost:8000'
+    CONSTANTS['room'] = '1'
 
 is_windows = sys.platform == "win32"
-exit_words = [':q', 'exit', 'quit', 'q']
-referer_header = {'Referer': url}
+referer_header = {'Referer': CONSTANTS['url']}
 balance = float()
 config = configparser.ConfigParser()
 
@@ -37,36 +40,45 @@ if is_windows:
     os.system('color')
 
 SHORTHANDS = {
-    'porter': 42,
-    'øl': 14,
-    'classic': 14,
-    'grøn': 14,
-    'monster': 1837,
-    'ale16': 54,
-    'cocio': 16,
-    'soda': 11,
-    'specialøl': 1848,
-    'kaffe': 32,
-    'sportscola': 1891,
     'abrikos': 1899,
-    'fuzetea': 1879,
-    'kakao': 1882,
+    'ale16': 54,
+    'alkofri': 1901,
+    'alkoholfri': 1901,
     'cacao': 1882,
-    'kinley': 1893,
-    'monsterkaffe': 1900,
-    'kildevand': 1839,
     'cider': 1831,
-    'sommersby': 1831,
-    'redbull': 1895,
-    'panta': 1848,
-    'glaspant': 1848,
-    'pantb': 31,
-    'sodapant': 31,
-    'pantc': 1849,
-    'storpant': 1849,
-    'nordic': 1901,
+    'classic': 14,
+    'cocio': 16,
     'fritfit': 1902,
+    'fuzetea': 1879,
+    'glaspant': 1848,
+    'grøn': 14,
+    'kaffe': 32,
+    'kakao': 1882,
+    'kildevand': 1839,
+    'kinley': 1893,
+    'monster': 1837,
+    'monsterkaffe': 1900,
     'månedens': 1903,
+    'noalc': 1901,
+    'nordic': 1901,
+    'nul': 1901,
+    'panta': 1848,
+    'pantb': 31,
+    'pantc': 1849,
+    'porter': 42,
+    'redbull': 1895,
+    'soda': 11,
+    'sodapant': 31,
+    'sodavand': 11,
+    'sommersby': 1831,
+    'specialøl': 1848,
+    'sportcola': 1891,
+    'sportscola': 1891,
+    'storpant': 1849,
+    'te': 1904,
+    'the': 1904,
+    'tuborgnul': 1901,
+    'øl': 14,
 }
 
 
@@ -114,16 +126,26 @@ def print(*args, **kwargs):
                     break
             else:
                 batted = False
-        __builtins__.print(msg)
+        __builtins__.print(msg, **kwargs)
     else:
-        __builtins__.print(msg)
+        __builtins__.print(msg, **kwargs)
     lines_counted += 1
+
+
+def format_triple(ware, index_0, index_1, index_2):
+    r = ware[1]
+    if re.match(r'<\w+?\d*?>', ware[1]):
+        r = re.sub(r'<br>', ' - ', ware[1])
+        r = re.sub(r'</?\w+?\d*?>', '', r)
+        print('\u001B[31m{0:<{1}} {2:<{3}} {4:<{5}}\u001B[0m'.format(ware[0], index_0, r, index_1, ware[2], index_2))
+    else:
+        print('{0:<{1}} {2:<{3}} {4:<{5}}'.format(ware[0], index_0, r, index_1, ware[2], index_2))
 
 
 def get_wares():
     try:
         session = requests.Session()
-        r = session.get(f"{url}/{room}/", verify=False)
+        r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     except Exception:
         print('Could not fetch wares from Stregsystement...')
         raise SystemExit(1)
@@ -149,13 +171,7 @@ wares = get_wares()
 def print_wares(wares):
     print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
     print('-' * 68)
-    for ware in wares:
-        if re.match("<\w\d>", ware[1]):
-            r = re.sub("<br>", ' - ', ware[1])
-            r = re.sub("<\w\d> | </\w\d>|<\w\w>|</\w\d>", '', r)
-            print('\u001B[31m{:<8} {:<50} {:<10}\u001B[0m'.format(ware[0], r, ware[2]))
-        else:
-            print('{:<8} {:<50} {:<10}'.format(ware[0], (ware[1]), ware[2]))
+    [format_triple(ware, 8, 50, 10) for ware in wares]
 
 
 def print_no_user_help(user):
@@ -167,9 +183,11 @@ def print_no_user_help(user):
 
 def test_user(user):
     session = requests.Session()
-    r = session.get(f"{url}/{room}/", verify=False)
+    r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
@@ -177,7 +195,13 @@ def test_user(user):
     # pprint(json)
     cookies = {'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'}
     # pprint(cookies)
-    sale = session.post(f"{url}/{room}/sale/", verify=False, data=json, cookies=cookies, headers=referer_header)
+    sale = session.post(
+        f"{CONSTANTS['url']}/{CONSTANTS['room']}/sale/",
+        verify=False,
+        data=json,
+        cookies=cookies,
+        headers=referer_header,
+    )
     session.close()
     if sale.status_code != 200:
         print('Noget gik galt.', sale.status_code, sale.content)
@@ -188,7 +212,7 @@ def test_user(user):
     global balance
     balance = float(re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1))
     global user_id
-    user_id = re.search(r'\<a href="/' + room + '/user/(\d+)"', sale.text).group(1)
+    user_id = re.search(r'\<a href="/' + CONSTANTS['room'] + '/user/(\d+)"', sale.text).group(1)
     return True
 
 
@@ -196,7 +220,7 @@ def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
 
     while not user or not test_user(user):
-        if user.lower() in exit_words:
+        if user.lower() in CONSTANTS['exit_words']:
             raise SystemExit
         print(f"'{user}' is not a valid user")
         user = input('Hvad er dit brugernavn? ')
@@ -207,8 +231,7 @@ def get_user_validated():
 def print_history(wares):
     print('{:<29} {:<40}  {:<10}'.format('Date', 'Item', 'Price'))
     print('-' * 80)
-    for ware in wares:
-        print('{:<29} {:<40}  {:<10}'.format(ware[0], ware[1], ware[2]))
+    [format_triple(ware, 29, 40, 10) for ware in wares]
 
     print('')
     print('')
@@ -221,7 +244,7 @@ def get_history(user_id):
 
     try:
         session = requests.Session()
-        r = session.get(f"{url}/{room}/user/{user_id}", verify=False)
+        r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/user/{user_id}", verify=False)
     except Exception:
         print('Kunne ikke oprette forbindelse til Stregsystenet')
         raise SystemExit(1)
@@ -239,6 +262,9 @@ def get_history(user_id):
     print_history(history)
 
 
+is_strandvejen = False
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
@@ -249,21 +275,23 @@ def sale(user, itm, count=1):
         itm = str(SHORTHANDS[itm])
 
     session = requests.Session()
-    r = session.get(f"{url}/{room}/", verify=False)
+    r = session.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/", verify=False)
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
     json = {'quickbuy': f"{user} {itm}:{count}", 'csrfmiddlewaretoken': token.group(1)}
     sale = session.post(
-        f"{url}/{room}/sale/",
+        f"{CONSTANTS['url']}/{CONSTANTS['room']}/sale/",
         data=json,
         cookies={'csrftoken': session.cookies.get_dict()['csrftoken'], 'djdt': 'show'},
         headers=referer_header,
     )
     session.close()
-    if sale.status_code != 200:
+    if sale.status_code != 200 and sale.status_code != 402:  # Stregforbud har 402, men no more inventory har ikke????
         print("Du har ikke købt din vare. Prøv igen", sale.status_code)
         raise SystemExit
     elif 'STREGFORBUD!' not in sale.text:
@@ -292,16 +320,32 @@ def sale(user, itm, count=1):
         print(f'Der er {balance:.2f} stregdollars - eller {itm_units_left} ' f'x {ware[0][1]} - tilbage')
 
     else:
+        ware = [x for x in wares if x[0] == itm]
         print(
-            '''STREGFORBUD!
+            f'''STREGFORBUD!
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
-Du kan foretage indbetaling via MobilePay'''
+Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode. Den vare du prøvede at købe kostede {ware[0][2]}'''
         )
+    global is_strandvejen
+    if is_strandvejen:
+        import time
+
+        time.sleep(5)
         raise SystemExit
 
 
-def parse(args):
-    parser = argparse.ArgumentParser()
+def pre_parse(args, parser: argparse.ArgumentParser):
+    parser.add_argument('-z', '--noplugins', action='store_true', help='Disables the plugin loader')
+    parser.add_argument(
+        '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
+    )
+    parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
+    args, _ = parser.parse_known_args(args)
+    return args
+
+
+def parse(args, parser: argparse.ArgumentParser):
+
     parser.add_argument(
         '-u', '--user', default=None, nargs='?', dest='user', help='Specifies your Stregsystem username'
     )
@@ -320,18 +364,23 @@ def parse(args):
     parser.add_argument('-p', '--mobilepay', dest='money', help='Provides a QR code to insert money into your account')
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     parser.add_argument('-o', '--shorthands', action='store_true', help='Shows shorthands')
+    parser.add_argument('-z', '--noplugins', action='store_true', help='Disables the plugin loader')
+    parser.add_argument(
+        '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
+    )
     parser.add_argument(
         '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
     )
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
 
-    return parser.parse_args(args)
+    args = parser.parse_args(args)
+    return args
 
 
 def get_item(ware_ids):
     count = 1
     item_id = input('Id> ')
-    if item_id.lower() in exit_words:
+    if item_id.lower() in CONSTANTS['exit_words']:
         return 'exit', 0
 
     if ':' in item_id:
@@ -346,7 +395,7 @@ def get_item(ware_ids):
             return
 
     while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
-        if item_id.lower() in exit_words:
+        if item_id.lower() in CONSTANTS['exit_words']:
             return 'exit', 0
 
         print(f"'{item_id}' is not a valid item")
@@ -360,12 +409,16 @@ def user_buy(user):
         print('Hej,', user)
         print(f'Du har {balance:.2f} stregdollars')
         print('')
-        print("Hvad ønsker at købe i Stregsystemet? (Skriv en af", str(exit_words), "for at komme ud af interfacet)")
+        print(
+            "Hvad ønsker at købe i Stregsystemet? (Skriv en af",
+            str(CONSTANTS['exit_words']),
+            "for at komme ud af interfacet)",
+        )
         print_wares(wares)
         print('')
         while True:
             item, count = get_item([x[0] for x in wares])
-            if item in exit_words:
+            if item in CONSTANTS['exit_words']:
                 raise SystemExit
             elif item is None:
                 continue
@@ -390,6 +443,8 @@ def get_qr(user, amount):
     r = session.get(f"https://qrcode.show/mobilepay://send?phone=90601&comment={user}&amount={int(amount)}")
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
+        if CONSTANTS.get('debug', False):
+            print(r.content)
         raise SystemExit
 
     print(r.content.decode('UTF-8'))
@@ -402,8 +457,9 @@ def update_config_file(dirs):
             continue
         with open(path, 'r') as original:
             data = original.read()
-        with open(path, 'w') as modified:
-            modified.write('[sts]\n' + data)
+        if not data.startswith('[sts]'):
+            with open(path, 'w') as modified:
+                modified.write('[sts]\n' + data)
 
 
 def read_config():
@@ -420,6 +476,10 @@ def get_saved_user() -> str:
     return config.get('sts', 'user', fallback=None)
 
 
+def get_plugin_dir() -> str:
+    return config.get('sts', 'plugin_dir', fallback=None)
+
+
 def calculate_sha256_binary(binary) -> str:
     import hashlib
 
@@ -427,7 +487,7 @@ def calculate_sha256_binary(binary) -> str:
 
 
 def has_version_difference():
-    r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+    r = requests.get(CONSTANTS['update_url'])
     newest_file_hash = calculate_sha256_binary(r.content)
     with open(__file__, 'rb') as f:
         data = f.read()
@@ -446,16 +506,78 @@ def update_script():
 
     # I perform open heart surgery on myself :)
     with open(__file__, 'w', encoding="utf-8") as f:
-        r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
+        r = requests.get(CONSTANTS['update_url'])
         if 'START_STS' in r.text and 'END_STS' in r.text:
             f.write(r.text)
 
 
-def main():
-    if has_version_difference():
-        print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.")
+def set_up_plugins(arg_array):
+    if not get_plugin_dir() and not os.path.exists('plugins/') and '-z' not in arg_array:
+        arg_array.insert(0, '-z')
+    elif get_plugin_dir():
+        pl_dir = get_plugin_dir()
+        pl_dir = f'{pl_dir}' if not pl_dir.endswith('/') or not pl_dir.endswith('\\') else pl_dir
+        if not os.path.exists(f'{pl_dir}__init__.py'):
+            with open(f'{pl_dir}__init__.py', 'w') as f:
+                f.write(0)
 
-    args = parse(sys.argv[1::])
+    return arg_array
+
+
+def main():
+    arg_array = sys.argv[1::]
+
+    read_config()
+    arg_array = set_up_plugins(arg_array)
+
+    parser = argparse.ArgumentParser()
+    _parser = argparse.ArgumentParser(add_help=False)
+    _args = pre_parse(arg_array, _parser)
+
+    if os.path.exists(get_plugin_dir() or 'plugins'):
+        try:
+            plugins = [
+                getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+                for item in os.listdir(get_plugin_dir() or 'plugins')
+                if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
+            ]
+        except:
+            if not _args.strandvejen:
+                print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+            plugins = []
+    else:
+        if not _args.strandvejen:
+            print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+        plugins = []
+
+    if not _args.noplugins:
+        for plugin in plugins:
+            try:
+                plugin.pre_argparse(parser, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
+                pass
+
+    if has_version_difference():
+        print("Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr)
+
+    args = parse(arg_array, parser)
+
+    if args.user is None:
+        args.user = get_saved_user()
+
+    if not args.noplugins:
+        for plugin in plugins:
+            try:
+                plugin.run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
+                pass
+
+    global is_strandvejen
+    is_strandvejen = args.strandvejen
 
     if args.update is True:
         update_script()
@@ -465,8 +587,6 @@ def main():
         print("You can use the following shorthand for purchasing")
         pprint(SHORTHANDS)
         return
-
-    read_config()
 
     if args.user is None:
         args.user = get_saved_user()
@@ -481,6 +601,7 @@ def main():
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
                     f.write(f"user={args.user}")
+                    f.write('; plugin_dir=')
 
     if args.user and args.product:
         if test_user(args.user):
@@ -520,6 +641,15 @@ def main():
                 sale(args.user, args.item, args.count)
         else:
             print_no_user_help(args.user)
+
+    if not args.noplugins:
+        for plugin in plugins:
+            try:
+                plugin.post_run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
+            except (AttributeError, TypeError) as e:
+                print(e)
+            except Exception:
+                pass
 
 
 if __name__ == '__main__':
