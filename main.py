@@ -445,7 +445,7 @@ def update_script():
         return
 
     # I perform open heart surgery on myself :)
-    with open(__file__, 'w') as f:
+    with open(__file__, 'w', encoding="utf-8") as f:
         r = requests.get('https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py')
         if 'START_STS' in r.text and 'END_STS' in r.text:
             f.write(r.text)
