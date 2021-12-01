@@ -550,7 +550,6 @@ def main():
             print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
         plugins = []
 
-
     if not _args.noplugins:
         for plugin in plugins:
             try:
