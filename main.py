@@ -188,7 +188,7 @@ def test_user(user):
         print('Noget gik galt', r.status_code)
         if CONSTANTS.get('debug', False):
             print(r.content)
-        raise SystemExit
+        raise SystemExit(r.status_code)
 
     token = re.search('(?<=name="csrfmiddlewaretoken" value=")(.+?)"', r.text)
     json = {'quickbuy': f"{user}", 'csrfmiddlewaretoken': token.group(1)}
