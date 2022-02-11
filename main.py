@@ -5,6 +5,7 @@ from __future__ import print_function
 from random import random
 import requests
 import re
+import json
 import argparse
 import sys
 import os
@@ -39,7 +40,7 @@ user_id = ''
 if is_windows:
     os.system('color')
 
-SHORTHANDS = {
+SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text) or {
     'abrikos': 1899,
     'ale16': 54,
     'alkofri': 1901,
@@ -80,6 +81,7 @@ SHORTHANDS = {
     'tuborgnul': 1901,
     'øl': 14,
 }
+
 
 
 def is_int(value):
