@@ -519,7 +519,7 @@ def set_up_plugins(arg_array):
         pl_dir = f'{pl_dir}/' if not pl_dir.endswith('/') or not pl_dir.endswith('\\') else pl_dir
         if not os.path.exists(f'{pl_dir}__init__.py'):
             with open(f'{pl_dir}__init__.py', 'w') as f:
-                f.write(0)
+                f.write('\x00')
 
     return arg_array
 
@@ -600,8 +600,8 @@ def main():
             if not os.path.isfile(f"{home}/.sts"):
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
-                    f.write(f"user={args.user}")
-                    f.write('; plugin_dir=')
+                    f.write(f"user={args.user}\n")
+                    f.write('plugin_dir=')
 
     if args.user and args.product:
         if test_user(args.user):
