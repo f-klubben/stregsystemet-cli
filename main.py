@@ -40,7 +40,10 @@ user_id = ''
 if is_windows:
     os.system('color')
 
-SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text) or {
+try:
+    SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+except:
+    SHORTHANDS = {
     'abrikos': 1899,
     'ale16': 54,
     'alkofri': 1901,
