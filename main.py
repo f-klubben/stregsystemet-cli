@@ -481,7 +481,7 @@ def get_saved_user() -> str:
 
 
 def get_plugin_dir() -> str:
-    return config.get('sts', 'plugin_dir', fallback=None)
+    return os.path.expanduser(config.get('sts', 'plugin_dir', fallback=None))
 
 
 def calculate_sha256_binary(binary) -> str:
