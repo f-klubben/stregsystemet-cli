@@ -8,7 +8,9 @@ import re
 import argparse
 import sys
 import os
+import types
 import urllib3
+import importlib.machinery
 import configparser
 import builtins as __builtins__
 
@@ -547,14 +549,22 @@ def main():
 
     if os.path.exists(get_plugin_dir() or 'plugins'):
         try:
-            plugins = [
-                getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+            plugins = []
+            for item in [
+                f'{get_plugin_dir()}{item}'
                 for item in os.listdir(get_plugin_dir() or 'plugins')
-                if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-            ]
-        except:
+                if item.endswith('.py') and item != '__init__.py'
+            ]:
+
+                loader = importlib.machinery.SourceFileLoader(item.replace('.py', ''), item)
+                mod = types.ModuleType(loader.name)
+                loader.exec_module(mod)
+                plugins.append(mod)
+        except Exception as e:
             if not _args.strandvejen:
                 print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+                if _args.verbose:
+                    print(e)
             plugins = []
     else:
         if not _args.strandvejen:
