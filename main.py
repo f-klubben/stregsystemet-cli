@@ -9,7 +9,9 @@ import json
 import argparse
 import sys
 import os
+import types
 import urllib3
+import importlib.machinery
 import configparser
 import builtins as __builtins__
 import datetime
@@ -405,6 +407,7 @@ def pre_parse(args, parser: argparse.ArgumentParser):
         '-x', '--strandvejen', action='store_true', help='Flag used for the CRT terminal version running in strandvejen'
     )
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
     args, _ = parser.parse_known_args(args)
     return args
 
@@ -437,6 +440,7 @@ def parse(args, parser: argparse.ArgumentParser):
         '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
     )
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
+    parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
 
     args = parser.parse_args(args)
     return args
@@ -542,7 +546,7 @@ def get_saved_user() -> str:
 
 
 def get_plugin_dir() -> str:
-    return config.get('sts', 'plugin_dir', fallback=None)
+    return os.path.expanduser(config.get('sts', 'plugin_dir', fallback=None))
 
 
 def calculate_sha256_binary(binary) -> str:
@@ -599,16 +603,33 @@ def main():
     _parser = argparse.ArgumentParser(add_help=False)
     _args = pre_parse(arg_array, _parser)
 
+    if _args.verbose:
+        __builtins__.print(
+            f'PLUGIN FOLDER={get_plugin_dir()}',
+            f'RUNNING FROM={__file__}',
+            f'CURRENT USER={get_saved_user()}',
+            f'CONFIG LOCATION={"".join([p for p in [os.path.expanduser("~/.config/sts/.sts"), os.path.expanduser("~/.sts")] if os.path.exists(p)])}',
+            sep='\n',
+        )
+
     if os.path.exists(get_plugin_dir() or 'plugins'):
         try:
-            plugins = [
-                getattr(__import__(f'plugins.{item.replace(".py", "")}'), item.replace('.py', ''))
+            plugins = []
+            for item in [
+                f'{get_plugin_dir()}{item}'
                 for item in os.listdir(get_plugin_dir() or 'plugins')
-                if '__init__.py' not in item and '__pycache__' not in item and item.endswith('.py')
-            ]
-        except:
+                if item.endswith('.py') and item != '__init__.py'
+            ]:
+
+                loader = importlib.machinery.SourceFileLoader(item.replace('.py', ''), item)
+                mod = types.ModuleType(loader.name)
+                loader.exec_module(mod)
+                plugins.append(mod)
+        except Exception as e:
             if not _args.strandvejen:
                 print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
+                if _args.verbose:
+                    print(e)
             plugins = []
     else:
         if not _args.strandvejen:
