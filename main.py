@@ -12,6 +12,8 @@ import os
 import urllib3
 import configparser
 import builtins as __builtins__
+import datetime
+import dateutil.parser as parser
 
 from datetime import date
 from pprint import pprint
@@ -34,14 +36,71 @@ is_windows = sys.platform == "win32"
 referer_header = {'Referer': CONSTANTS['url']}
 balance = float()
 config = configparser.ConfigParser()
+file_loaded = False
 
 user_id = ''
 
 if is_windows:
     os.system('color')
 
+SHORTHANDS = {
+    'abrikos': 1899,
+    'ale16': 54,
+    'alkofri': 1901,
+    'alkoholfri': 1901,
+    'cacao': 1882,
+    'cider': 1831,
+    'classic': 14,
+    'cocio': 16,
+    'fritfit': 1902,
+    'fuzetea': 1879,
+    'glaspant': 1848,
+    'grøn': 14,
+    'kaffe': 32,
+    'kakao': 1882,
+    'kildevand': 1839,
+    'kinley': 1893,
+    'monster': 1837,
+    'monsterkaffe': 1900,
+    'månedens': 1903,
+    'noalc': 1901,
+    'nordic': 1901,
+    'nul': 1901,
+    'panta': 1848,
+    'pantb': 31,
+    'pantc': 1849,
+    'porter': 42,
+    'redbull': 1895,
+    'soda': 11,
+    'sodapant': 31,
+    'sodavand': 11,
+    'sommersby': 1831,
+    'specialøl': 1848,
+    'sportcola': 1891,
+    'sportscola': 1891,
+    'storpant': 1849,
+    'te': 1904,
+    'the': 1904,
+    'tuborgnul': 1901,
+    'øl': 14,
+}
+
 try:
-    SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+    if not os.path.exists(os.path.expanduser('~/.sts-wares')):
+        SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+        time = datetime.datetime.now()
+        with open(os.path.expanduser('~/.sts-wares'), 'a') as f:
+            f.writelines([str(time) + '\n', str(SHORTHANDS)])
+    else:
+        with open(os.path.expanduser('~/.sts-wares'), 'r') as f:
+            date_ = parser.parse(f.readline())
+            SHORTHANDS = json.loads(f.readlines().split('\n')[1])
+            if date_ + datetime.timedelta(days=7) < datetime.datetime.now():
+                SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+                date_ = datetime.datetime.now()
+        with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
+            f.writelines([str(date_) + '\n', str(SHORTHANDS)])
+    file_loaded = True
 except:
     SHORTHANDS = {
         'abrikos': 1899,
@@ -84,6 +143,8 @@ except:
         'tuborgnul': 1901,
         'øl': 14,
     }
+    with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
+        f.writelines([str(datetime.datetime.now()) + '\n', str(SHORTHANDS)])
 
 
 def is_int(value):
@@ -590,6 +651,8 @@ def main():
     if args.shorthands:
         print("You can use the following shorthand for purchasing")
         pprint(SHORTHANDS)
+        if args.verbose:
+            print(f'file_loaded={file_loaded}')
         return
 
     if args.user is None:
