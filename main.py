@@ -146,7 +146,6 @@ except Exception as e:
         'tuborgnul': 1901,
         'øl': 14,
     }
-    print(e)
     with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
         f.writelines([str(datetime.datetime.now()) + '\n', str(SHORTHANDS)])
 
