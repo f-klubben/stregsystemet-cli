@@ -314,6 +314,10 @@ def sale(user, itm, count=1):
             return
 
         print(f'{user} har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
+        if 'koffein i kroppen' in sale.text:
+            in_body = re.search(r'Du har \d+mg koffein i kroppen\.', sale.text)
+            cups = re.search(r'Det svarer til at drikke .+? kopper kaffe i streg!', sale.text)
+            print(in_body.group(0), cups.group(0))
 
         global balance
         balance -= float(ware[0][2].replace('kr', '').strip()) * float(count)
