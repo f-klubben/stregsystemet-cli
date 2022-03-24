@@ -96,14 +96,15 @@ try:
     else:
         with open(os.path.expanduser('~/.sts-wares'), 'r') as f:
             date_ = parser.parse(f.readline())
-            SHORTHANDS = json.loads(f.readlines().split('\n')[1])
+            line = f.readline().replace("'", '"')
+            SHORTHANDS = json.loads(line)
             if date_ + datetime.timedelta(days=7) < datetime.datetime.now():
                 SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
                 date_ = datetime.datetime.now()
         with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
             f.writelines([str(date_) + '\n', str(SHORTHANDS)])
     file_loaded = True
-except:
+except Exception as e:
     SHORTHANDS = {
         'abrikos': 1899,
         'ale16': 54,
@@ -145,6 +146,7 @@ except:
         'tuborgnul': 1901,
         'øl': 14,
     }
+    print(e)
     with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
         f.writelines([str(datetime.datetime.now()) + '\n', str(SHORTHANDS)])
 
