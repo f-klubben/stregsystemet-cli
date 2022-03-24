@@ -103,7 +103,7 @@ try:
                 date_ = datetime.datetime.now()
         with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
             f.writelines([str(date_) + '\n', str(SHORTHANDS)])
-    file_loaded = True
+        file_loaded = True
 except Exception as e:
     SHORTHANDS = {
         'abrikos': 1899,
