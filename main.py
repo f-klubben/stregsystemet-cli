@@ -444,11 +444,11 @@ def user_buy(user):
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
-    user, wares = get_user_validated()
+    user, purchases = get_user_validated()
     # If wares exists make a sale on every ware
-    if wares:
-        for ware in wares:
-            sale(user, ware[0], 1)
+    if purchases:
+        for ware in purchases:
+            sale(user, ware[0])
     else:
         user_buy(user)
 
@@ -630,7 +630,7 @@ def main():
 
     if args.setup:
         if args.user is None:
-            args.user, wares = get_user_validated()
+            args.user, purchases = get_user_validated()
 
         if test_user(args.user):
             home = os.path.expanduser('~')
@@ -660,16 +660,16 @@ def main():
 
     if args.user is None or args.item is None:
         if args.user is None:
-            args.user, wares = get_user_validated()
+            args.user, purchases = get_user_validated()
             if args.verbose:
                 print(f'USER={args.user}')
-                print(f'WARE={wares}')
+                print(f'PURCHASES={purchases}')
 
         if args.user is not None:
             if args.money:
                 get_qr(args.user, args.money)
-            elif wares:
-                for ware in wares:
+            elif purchases:
+                for ware in purchases:
                     sale(args.user, ware)
             else:
                 user_buy(args.user)
