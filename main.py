@@ -211,8 +211,9 @@ def test_user(user):
     if 'Det lader ikke til, at du er registreret som aktivt medlem af F-klubben' in sale.text:
         return False
 
+    balance_regex = re.search(r'(\d+.\d+) kroner til gode!', sale.text)
     global balance
-    balance = float(re.search(r'(\d+.\d+) kroner til gode!', sale.text).group(1))
+    balance = float(balance_regex.group(1))
     global user_id
     user_id = re.search(r'\<a href="/' + CONSTANTS['room'] + '/user/(\d+)"', sale.text).group(1)
     return True
@@ -220,14 +221,20 @@ def test_user(user):
 
 def get_user_validated():
     user = input('Hvad er dit brugernavn? ')
+    if ' ' in user:
+        input_split = user.split(' ')
+        user = input_split[0]
 
     while not user or not test_user(user):
         if user.lower() in CONSTANTS['exit_words']:
             raise SystemExit
         print(f"'{user}' is not a valid user")
         user = input('Hvad er dit brugernavn? ')
+        if ' ' in user:
+            input_split = user.split(' ')
+            user = input_split[0]
 
-    return user
+    return user, input_split[1:]
 
 
 def print_history(wares):
@@ -437,8 +444,13 @@ def user_buy(user):
 
 def no_info_buy():
     print("Du kan skrive 'exit' for at annullere.")
-    user = get_user_validated()
-    user_buy(user)
+    user, purchases = get_user_validated()
+    # If wares exists make a sale on every ware
+    if purchases:
+        for ware in purchases:
+            sale(user, ware[0])
+    else:
+        user_buy(user)
 
 
 def get_qr(user, amount):
@@ -537,6 +549,7 @@ def main():
 
     read_config()
     arg_array = set_up_plugins(arg_array)
+    purchases = None
 
     parser = argparse.ArgumentParser()
     _parser = argparse.ArgumentParser(add_help=False)
@@ -618,7 +631,7 @@ def main():
 
     if args.setup:
         if args.user is None:
-            args.user = get_user_validated()
+            args.user, purchases = get_user_validated()
 
         if test_user(args.user):
             home = os.path.expanduser('~')
@@ -648,11 +661,17 @@ def main():
 
     if args.user is None or args.item is None:
         if args.user is None:
-            args.user = get_user_validated()
+            args.user, purchases = get_user_validated()
+            if args.verbose:
+                print(f'USER={args.user}')
+                print(f'PURCHASES={purchases}')
 
         if args.user is not None:
             if args.money:
                 get_qr(args.user, args.money)
+            elif purchases:
+                for ware in purchases:
+                    sale(args.user, ware)
             else:
                 user_buy(args.user)
         else:
