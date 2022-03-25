@@ -220,6 +220,7 @@ def test_user(user):
 
 
 def get_user_validated():
+    input_split = [None]
     user = input('Hvad er dit brugernavn? ')
     if ' ' in user:
         input_split = user.split(' ')
