@@ -549,6 +549,7 @@ def main():
 
     read_config()
     arg_array = set_up_plugins(arg_array)
+    purchases = None
 
     parser = argparse.ArgumentParser()
     _parser = argparse.ArgumentParser(add_help=False)
