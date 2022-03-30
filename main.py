@@ -341,6 +341,19 @@ def get_history(user_id):
 is_strandvejen = False
 
 
+def print_coffee_amount(sale):
+    if 'koffein i kroppen' in sale.text:
+        in_body = re.search(r'Du har \d+mg koffein i kroppen\.', sale.text)
+        cups = re.search(r'Det svarer til at drikke .+? kopper kaffe i streg!', sale.text)
+        print(in_body.group(0), cups.group(0))
+
+
+def print_blood_alcohol_ration(sale):
+    if 'Din alkohol promille er ca. ' in sale.text:
+        bac = re.search(r'<b>(\d+,\d+‰)</b>', sale.text).group(1)
+        print(f'Din alkohol promille er ca. {bac}')
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
@@ -388,16 +401,13 @@ def sale(user, itm, count=1):
             return
 
         print(f'{user} har købt', count, ware[0][1], 'til', ware[0][2], 'stykket')
-        if 'koffein i kroppen' in sale.text:
-            in_body = re.search(r'Du har \d+mg koffein i kroppen\.', sale.text)
-            cups = re.search(r'Det svarer til at drikke .+? kopper kaffe i streg!', sale.text)
-            print(in_body.group(0), cups.group(0))
-
         global balance
         balance -= float(ware[0][2].replace('kr', '').strip()) * float(count)
         itm_unit_price = float(ware[0][2].replace("kr", "").strip())
         itm_units_left = f"{(balance / itm_unit_price):.2f}" if itm_unit_price > 0 else "∞"
         print(f'Der er {balance:.2f} stregdollars - eller {itm_units_left} ' f'x {ware[0][1]} - tilbage')
+        print_coffee_amount(sale)
+        print_blood_alcohol_ration(sale)
 
     else:
         ware = [x for x in wares if x[0] == itm]
