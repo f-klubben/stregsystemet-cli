@@ -6,7 +6,6 @@ mkDerivation rec {
 
 	python = pkgs.python39.withPackages (pypkgs: [
     	pypkgs.requests
-    	pypkgs.dateutils
 	]);
 
     nativeBuildInputs = [
