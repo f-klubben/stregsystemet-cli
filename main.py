@@ -579,7 +579,11 @@ def get_saved_user() -> str:
 
 
 def get_plugin_dir() -> str:
-    return os.path.expanduser(config.get('sts', 'plugin_dir', fallback=None))
+    rawpath = config.get('sts', 'plugin_dir', fallback=None)
+    if rawpath == None:
+        return ""
+    else:
+        return os.path.expanduser(rawpath)
 
 
 def calculate_sha256_binary(binary) -> str:
