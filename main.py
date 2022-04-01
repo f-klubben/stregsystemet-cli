@@ -15,7 +15,6 @@ import importlib.machinery
 import configparser
 import builtins as __builtins__
 import datetime
-import dateutil.parser as parser
 
 from datetime import date
 from pprint import pprint
