@@ -9,10 +9,16 @@ The CLI is a python script that relies on no external dependendencies except `re
 
 ## Installation
 
-To install the script, simply cURL or wget it from GitHub
+To install the script, simply `cURL` or `wget` it from GitHub
 
 ```bash
-wget https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py -O sts
+### For quick setup ON LINUX
+wget -O "$HOME/.local/bin/sts" https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py # To download the script
+chmod u+rwx "$HOME/.local/bin/sts" # For permission
+sts -s # For setup
+
+### For general purpose
+wget -O sts https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py
 ```
 
 Using the CLI in Powershell can be made easier by running the setup script, you can wget it.
