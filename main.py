@@ -33,6 +33,7 @@ CONSTANTS = {
 if sys.argv[0] == './main.py':
     CONSTANTS['url'] = 'http://localhost:8000'
     CONSTANTS['room'] = '1'
+    CONSTANTS['debug'] = True
 
 is_windows = sys.platform == "win32"
 referer_header = {'Referer': CONSTANTS['url']}
@@ -105,6 +106,8 @@ try:
             f.writelines([str(date_) + '\n', str(SHORTHANDS)])
         file_loaded = True
 except Exception as e:
+    if CONSTANTS['debug']:
+        print(e)
     SHORTHANDS = {
         'abrikos': 1899,
         'ale16': 54,
@@ -359,6 +362,8 @@ def sale(user, itm, count=1):
         print('Du kan ikke købe negative mængder af varer.')
         return
 
+    count = itm.split(':')[1]
+    itm = itm.split(':')[0]
     # check for shorthand and replace
     if itm in SHORTHANDS:
         itm = str(SHORTHANDS[itm])
