@@ -31,6 +31,7 @@ CONSTANTS = {
 }
 
 if sys.argv[0] == './main.py':
+    print('You are running the script in debug mode.')
     CONSTANTS['url'] = 'http://localhost:8000'
     CONSTANTS['room'] = '1'
 
@@ -431,6 +432,7 @@ def pre_parse(args, parser: argparse.ArgumentParser):
     )
     parser.add_argument('-a', '--update', action='store_true', help='Update the script and then exists')
     parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
+    parser.add_argument('-s', '--setup', action='store_true', help='Runs the setup script')
     args, _ = parser.parse_known_args(args)
     return args
 
@@ -574,7 +576,7 @@ def get_saved_user() -> str:
 
 
 def get_plugin_dir() -> str:
-    return os.path.expanduser(config.get('sts', 'plugin_dir', fallback=None))
+        return os.path.expanduser(config.get('sts', 'plugin_dir', fallback=None) or "plugins")
 
 
 def calculate_sha256_binary(binary) -> str:
@@ -625,13 +627,13 @@ def main():
     arg_array = sys.argv[1::]
 
     read_config()
-    arg_array = set_up_plugins(arg_array)
     purchases = None
 
     parser = argparse.ArgumentParser()
     _parser = argparse.ArgumentParser(add_help=False)
     _args = pre_parse(arg_array, _parser)
-
+    if not _args.setup:
+        arg_array = set_up_plugins(arg_array)
     if _args.verbose:
         __builtins__.print(
             f'PLUGIN FOLDER={get_plugin_dir()}',
@@ -717,6 +719,7 @@ def main():
             if not os.path.isfile(f"{home}/.sts"):
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
+                    f.write("[sts]\n")
                     f.write(f"user={args.user}\n")
                     f.write('plugin_dir=')
 
