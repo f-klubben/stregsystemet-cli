@@ -357,13 +357,27 @@ def print_blood_alcohol_ration(sale):
         print(f'Din alkohol promille er ca. {bac}')
 
 
+def parse_split_multibuy(itm):
+    count = 1
+    itm_arr = itm.split(':')
+    if len(itm_arr) == 2:
+        count = itm_arr[1]
+        itm = itm_arr[0]
+    elif len(itm_arr) > 2:
+        print('Du har fejl i dit multibuy format. Brug kun et : for at adskille antal og vare')
+        print('Din fejl er her:')
+        print(itm)
+        print(('-' * itm.index(':', itm.index(':') + 1)) + '^')
+        return None, 0
+    return itm, count
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
         return
 
-    count = itm.split(':')[1]
-    itm = itm.split(':')[0]
+    itm, count = parse_split_multibuy(itm)
     # check for shorthand and replace
     if itm in SHORTHANDS:
         itm = str(SHORTHANDS[itm])
@@ -481,22 +495,21 @@ def get_item(ware_ids):
         return 'exit', 0
 
     if ':' in item_id:
-        if is_int(item_id.split(':')[1]):
-            count = item_id.split(':')[1]
+        item_id, count = parse_split_multibuy(item_id)
+        if is_int(count):
             if int(count) <= 0:
                 print('Du kan ikke købe negative mængder af varer.')
-                return
-            item_id = item_id.split(':')[0]
+                return None, 0
         else:
             print('Du har angivet tekst hvor du skal angive en mængde')
-            return
+            return None, 0
 
-    while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
+    if not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
         if item_id.lower() in CONSTANTS['exit_words']:
             return 'exit', 0
 
         print(f"'{item_id}' is not a valid item")
-        item_id = input('Id> ')
+        return get_item(ware_ids)
     return item_id, count
 
 
