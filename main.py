@@ -15,7 +15,6 @@ import importlib.machinery
 import configparser
 import builtins as __builtins__
 import datetime
-import dateutil.parser as parser
 
 from datetime import date
 from pprint import pprint
@@ -96,10 +95,12 @@ try:
             f.writelines([str(time) + '\n', str(SHORTHANDS)])
     else:
         with open(os.path.expanduser('~/.sts-wares'), 'r') as f:
-            date_ = parser.parse(f.readline())
+            date_ = datetime.datetime.fromisoformat(f.readline().strip())
             line = f.readline().replace("'", '"')
             SHORTHANDS = json.loads(line)
             if date_ + datetime.timedelta(days=7) < datetime.datetime.now():
+                if CONSTANTS['debug']:
+                    print('Updating SHORTHANDS')
                 SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
                 date_ = datetime.datetime.now()
         with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
