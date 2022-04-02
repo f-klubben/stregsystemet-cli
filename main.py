@@ -362,8 +362,16 @@ def sale(user, itm, count=1):
         print('Du kan ikke købe negative mængder af varer.')
         return
 
-    count = itm.split(':')[1]
-    itm = itm.split(':')[0]
+    if len(itm.split(':')) == 2:
+        count = itm.split(':')[1]
+        itm = itm.split(':')[0]
+    elif len(itm.split(':')) > 2:
+        print('Du har fejl i dit multibuy format. Brug kun et : for at adskille antal og vare')
+        print('Din fejl er her:')
+        print(itm)
+        print(('-' * itm.index(':', itm.index(':') + 1))+'^')
+        return
+
     # check for shorthand and replace
     if itm in SHORTHANDS:
         itm = str(SHORTHANDS[itm])
@@ -481,22 +489,30 @@ def get_item(ware_ids):
         return 'exit', 0
 
     if ':' in item_id:
-        if is_int(item_id.split(':')[1]):
+        if len(item_id.split(':')) == 2:
             count = item_id.split(':')[1]
+            item_id = item_id.split(':')[0]
+        elif len(item_id.split(':')) > 2:
+            print('Du har fejl i dit multibuy format. Brug kun et : for at adskille antal og vare')
+            print('Din fejl er her:')
+            print(item_id)
+            print(('-' * item_id.index(':', item_id.index(':') + 1))+'^')
+            return None, 0
+
+        if is_int(count):
             if int(count) <= 0:
                 print('Du kan ikke købe negative mængder af varer.')
-                return
-            item_id = item_id.split(':')[0]
+                return None, 0
         else:
             print('Du har angivet tekst hvor du skal angive en mængde')
-            return
+            return None, 0
 
-    while not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
+    if not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
         if item_id.lower() in CONSTANTS['exit_words']:
             return 'exit', 0
 
         print(f"'{item_id}' is not a valid item")
-        item_id = input('Id> ')
+        return get_item(ware_ids)
     return item_id, count
 
 
