@@ -369,7 +369,7 @@ def sale(user, itm, count=1):
         print('Du har fejl i dit multibuy format. Brug kun et : for at adskille antal og vare')
         print('Din fejl er her:')
         print(itm)
-        print(('-' * itm.index(':', itm.index(':') + 1))+'^')
+        print(('-' * itm.index(':', itm.index(':') + 1)) + '^')
         return
 
     # check for shorthand and replace
@@ -496,7 +496,7 @@ def get_item(ware_ids):
             print('Du har fejl i dit multibuy format. Brug kun et : for at adskille antal og vare')
             print('Din fejl er her:')
             print(item_id)
-            print(('-' * item_id.index(':', item_id.index(':') + 1))+'^')
+            print(('-' * item_id.index(':', item_id.index(':') + 1)) + '^')
             return None, 0
 
         if is_int(count):
