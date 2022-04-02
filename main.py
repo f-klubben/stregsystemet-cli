@@ -357,7 +357,7 @@ def print_blood_alcohol_ration(sale):
         print(f'Din alkohol promille er ca. {bac}')
 
 
-def split_multibuy(itm):
+def parse_split_multibuy(itm):
     count = 1
     itm_arr = itm.split(':')
     if len(itm_arr) == 2:
@@ -377,7 +377,7 @@ def sale(user, itm, count=1):
         print('Du kan ikke købe negative mængder af varer.')
         return
 
-    itm, count = split_multibuy(itm)
+    itm, count = parse_split_multibuy(itm)
     # check for shorthand and replace
     if itm in SHORTHANDS:
         itm = str(SHORTHANDS[itm])
@@ -495,7 +495,7 @@ def get_item(ware_ids):
         return 'exit', 0
 
     if ':' in item_id:
-        item_id, count = split_multibuy(item_id)
+        item_id, count = parse_split_multibuy(item_id)
         if is_int(count):
             if int(count) <= 0:
                 print('Du kan ikke købe negative mængder af varer.')
