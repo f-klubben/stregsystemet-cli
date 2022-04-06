@@ -29,7 +29,7 @@ CONSTANTS = {
     'debug': False,
 }
 
-if sys.argv[0] == './main.2py':
+if sys.argv[0] == './main.py':
     print('You are running the script in debug mode.')
     CONSTANTS['url'] = 'http://localhost:8000'
     CONSTANTS['room'] = '1'
