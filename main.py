@@ -170,11 +170,23 @@ month = _date.month
 bat_amount = _date.day
 lines_counted = 0
 
+printables = {
+    4: '\U0001F414',
+    10: '\U0001F987',
+    12: '\U00002744',
+}
+
+special_months = [4, 10, 12]
+
+if CONSTANTS['debug']:
+    print(f'MONTH={_date.month}')
+    print(f'PRINTABLE={printables[_date.month]}')
+
 
 def print(*args, **kwargs):
     global bat_amount, lines_counted
     msg = ' '.join(map(str, args))
-    if _date.month == 10 and bat_amount > 0:
+    if _date.month in special_months and bat_amount > 0:
         # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
         print_prob = (
             ((random() * 10) / (len(' '.join(map(str, args))) * random() + 0.1) * random())
@@ -191,7 +203,9 @@ def print(*args, **kwargs):
                     if random() > 0.04:
                         print_prob += random()
                     continue
-                msg = msg[:i] + '\U0001F987' + msg[i + 1 :]
+                msg = msg[:i] + printables[_date.month] + msg[i + 1 :]
+                if CONSTANTS['debug']:
+                    print('PRINTED')
                 bat_amount -= 1
                 batted = True
                 print_prob = print_prob - random()
