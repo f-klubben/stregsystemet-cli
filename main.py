@@ -349,8 +349,11 @@ is_strandvejen = False
 def print_coffee_amount(sale):
     if 'koffein i kroppen' in sale.text:
         in_body = re.search(r'Du har \d+mg koffein i kroppen\.', sale.text)
-        cups = re.search(r'Det svarer til at drikke .+? kopper kaffe i streg!', sale.text)
-        print(in_body.group(0), cups.group(0))
+        cups = re.search(r'Det svarer til at drikke .*? kopper kaffe i streg!', sale.text)
+        if cups:
+            print(in_body.group(0), cups.group(0))
+        else:
+            print(in_body.group(0))
 
 
 def print_blood_alcohol_ration(sale):
