@@ -170,10 +170,12 @@ month = _date.month
 bat_amount = _date.day
 lines_counted = 0
 
+# Unicode characters for emojis
+# https://apps.timwhitlock.info/emoji/tables/unicode
 printables = {
-    4: '\U0001F414',
-    10: '\U0001F987',
-    12: '\U00002744',
+    4: '\U0001F414',  # Chicken emoji
+    10: '\U0001F987',  # Bat emoji
+    12: '\U00002744',  # Snowflake emoji
 }
 
 special_months = [4, 10, 12]
