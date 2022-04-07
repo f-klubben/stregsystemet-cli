@@ -210,9 +210,9 @@ def format_triple(ware, index_0, index_1, index_2):
     if re.match(r'<\w+?\d*?>', ware[1]):
         r = re.sub(r'<br>', ' - ', ware[1])
         r = re.sub(r'</?\w+?\d*?>', '', r)
-        print('\u001B[31m{0:<{1}} {2:<{3}} {4:<{5}}\u001B[0m'.format(ware[0], index_0, r, index_1, ware[2], index_2))
+        print('\u001B[31m{0:<{1}} {2:<{3}} {4:>{5}}\u001B[0m'.format(ware[0], index_0, r, index_1, ware[2], index_2))
     else:
-        print('{0:<{1}} {2:<{3}} {4:<{5}}'.format(ware[0], index_0, r, index_1, ware[2], index_2))
+        print('{0:<{1}} {2:<{3}} {4:>{5}}'.format(ware[0], index_0, r, index_1, ware[2], index_2))
 
 
 def get_wares():
@@ -242,8 +242,8 @@ wares = get_wares()
 
 
 def print_wares(wares):
-    print('{:<8} {:<50} {:<10}'.format('Id', 'Item', 'Price'))
-    print('-' * 68)
+    print('{:<8} {:<50} {:>10}'.format('Id', 'Item', 'Price'))
+    print('-' * 70)
     [format_triple(ware, 8, 50, 10) for ware in wares]
 
 
@@ -310,8 +310,8 @@ def get_user_validated():
 
 
 def print_history(wares):
-    print('{:<29} {:<40}  {:<10}'.format('Date', 'Item', 'Price'))
-    print('-' * 80)
+    print('{:<29} {:<40} {:>10}'.format('Date', 'Item', 'Price'))
+    print('-' * 81)
     [format_triple(ware, 29, 40, 10) for ware in wares]
 
     print('')
@@ -338,7 +338,7 @@ def get_history(user_id):
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+)</td>', body)
     history = []
     for x in range(len(item_date_list)):
-        history.append((item_date_list[x], item_name_list[x], f"{item_price_list[x]} kr."))
+        history.append((item_date_list[x], item_name_list[x], f"{item_price_list[x]} kr"))
 
     print_history(history)
 
