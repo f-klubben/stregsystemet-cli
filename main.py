@@ -2,22 +2,22 @@
 # START_STS
 from __future__ import print_function
 
-from random import random
-import requests
-import re
-import json
 import argparse
-import sys
-import os
-import types
-import urllib3
-import importlib.machinery
-import configparser
 import builtins as __builtins__
+import configparser
 import datetime
-
+import importlib.machinery
+import json
+import os
+import re
+import sys
+import types
 from datetime import date
 from pprint import pprint
+from random import random
+
+import requests
+import urllib3
 
 urllib3.disable_warnings()
 
