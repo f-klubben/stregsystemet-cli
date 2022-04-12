@@ -109,7 +109,7 @@ try:
         file_loaded = True
 except Exception as e:
     if CONSTANTS['debug']:
-        print(e)
+        __builtins__.print(e)
     SHORTHANDS = {
         'abrikos': 1899,
         'ale16': 54,
@@ -206,8 +206,6 @@ def print(*args, **kwargs):
                         print_prob += random()
                     continue
                 msg = msg[:i] + printables[_date.month] + msg[i + 1 :]
-                if CONSTANTS['debug']:
-                    print('PRINTED')
                 bat_amount -= 1
                 batted = True
                 print_prob = print_prob - random()
@@ -699,10 +697,10 @@ def main():
                 loader.exec_module(mod)
                 plugins.append(mod)
         except Exception as e:
-            if not _args.strandvejen:
+            if e and CONSTANTS['debug']:
+                __builtins__.print('An error occured while loading plugin:\n', e)
+            elif not _args.strandvejen:
                 print('STS now supports plugins. Add "plugin_dir=~/.sts_plugins/" to your .sts file')
-                if _args.verbose:
-                    print(e)
             plugins = []
     else:
         if not _args.strandvejen:
@@ -714,7 +712,7 @@ def main():
             try:
                 plugin.pre_argparse(parser, CONSTANTS)
             except (AttributeError, TypeError) as e:
-                print(e)
+                __builtins__.print(e)
             except Exception:
                 pass
 
@@ -731,7 +729,7 @@ def main():
             try:
                 plugin.run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
             except (AttributeError, TypeError) as e:
-                print(e)
+                __builtins__.print(e)
             except Exception:
                 pass
 
@@ -815,7 +813,7 @@ def main():
             try:
                 plugin.post_run(wares, args, arg_array, SHORTHANDS, CONSTANTS)
             except (AttributeError, TypeError) as e:
-                print(e)
+                __builtins__.print(e)
             except Exception:
                 pass
 
