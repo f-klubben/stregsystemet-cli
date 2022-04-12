@@ -581,7 +581,7 @@ def get_qr(user, amount):
     if r.status_code != 200:
         print('Noget gik galt', r.status_code)
         if CONSTANTS.get('debug', False):
-            print(r.content)
+            __builtins__.print(r.content)
         raise SystemExit
 
     print(r.content.decode('UTF-8'))
