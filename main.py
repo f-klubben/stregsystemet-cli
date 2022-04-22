@@ -454,6 +454,9 @@ def sale(user, itm, count=1):
 Du kan ikke foretage køb, før du har foretaget en indbetaling!
 Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til gode. Den vare du prøvede at købe kostede {ware[0][2]}'''
         )
+        print('\nHer er en QR kode til at indsætte 50 kr på din stregkonto')
+        get_qr(user, 50)
+
     global is_strandvejen
     if is_strandvejen:
         import time
