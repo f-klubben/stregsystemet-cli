@@ -188,7 +188,7 @@ if CONSTANTS['debug']:
 def print(*args, **kwargs):
     global bat_amount, lines_counted
     msg = ' '.join(map(str, args))
-    if _date.month in special_months and bat_amount > 0:
+    if _date.month in special_months and bat_amount > 0 and config.getboolean('sts', 'emoji_support', fallback=True):
         # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
         print_prob = (
             ((random() * 10) / (len(' '.join(map(str, args))) * random() + 0.1) * random())
@@ -755,12 +755,19 @@ def main():
             args.user, purchases = get_user_validated()
 
         if test_user(args.user):
+            answer = 'a'
+            while answer.lower() not in ['y', 'n']:
+                print('Please check if you are able to see the emojis between the <> symbols below')
+                print(f'<{printables[4]}><{printables[10]}><{printables[12]}>')
+                answer = input('Does your terminal support emojis? (y/n) ')
+            emoji_support = answer.lower() == 'y'
             home = os.path.expanduser('~')
             if not os.path.isfile(f"{home}/.sts"):
                 with open(f"{home}/.sts", "w") as f:
                     print(f"Your .sts file has been created at location {home}/.sts")
                     f.write("[sts]\n")
                     f.write(f"user={args.user}\n")
+                    f.write(f"emoji_support={emoji_support}\n")
                     f.write('plugin_dir=')
 
     if args.user and args.product:
