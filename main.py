@@ -757,14 +757,14 @@ def main():
         if test_user(args.user):
             answer = 'a'
             while answer.lower() not in ['y', 'n']:
-                print('Please check if you are able to see the emojis between the <> symbols below')
-                print(f'<{printables[4]}><{printables[10]}><{printables[12]}>')
+                __builtins__.print('Please check if you are able to see the emojis between the <> symbols below')
+                __builtins__.print(f'<{printables[4]}><{printables[10]}><{printables[12]}>')
                 answer = input('Does your terminal support emojis? (y/n) ')
             emoji_support = answer.lower() == 'y'
             home = os.path.expanduser('~')
             if not os.path.isfile(f"{home}/.sts"):
                 with open(f"{home}/.sts", "w") as f:
-                    print(f"Your .sts file has been created at location {home}/.sts")
+                    __builtins__.print(f"Your .sts file has been created at location {home}/.sts")
                     f.write("[sts]\n")
                     f.write(f"user={args.user}\n")
                     f.write(f"emoji_support={emoji_support}\n")
