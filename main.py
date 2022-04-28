@@ -416,7 +416,7 @@ def get_scoreboard():
         __builtins__.print('Noget gik galt.', r.status_code, r.url)
         raise SystemExit(r.status_code)
     items = parse_scoreboard(r.text)
-    print('{:<20} {:>10} {:>10}'.format('Navn', 'Score', 'Gennemsnit'))
+    print('{:<20} {:>10} {:>10}'.format('Navn', 'Gennemsnit', 'Rank'))
     print('-' * 42)
     for i in range(len(items[0])):
         format_scoreboard((items[0][i], items[1][i], items[2][i]))
