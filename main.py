@@ -15,6 +15,7 @@ import importlib.machinery
 import configparser
 import builtins as __builtins__
 import datetime
+from collections import Counter
 
 from datetime import date
 from pprint import pprint
@@ -357,6 +358,7 @@ def get_history(user_id):
     print_history(history)
 
 
+global is_strandvejen
 is_strandvejen = False
 
 
@@ -396,7 +398,8 @@ def sale(user, itm, count=1):
         print('Du kan ikke købe negative mængder af varer.')
         return
 
-    itm, count = parse_split_multibuy(itm)
+    if count == 1 or ':' in itm.lower():
+        itm, count = parse_split_multibuy(itm)
     # check for shorthand and replace
     if itm in SHORTHANDS:
         itm = str(SHORTHANDS[itm])
@@ -456,13 +459,6 @@ Du kan foretage indbetaling via MobilePay. Du har {balance} stregdollars til god
         )
         print('\nHer er en QR kode til at indsætte 50 kr på din stregkonto')
         get_qr(user, 50)
-
-    global is_strandvejen
-    if is_strandvejen:
-        import time
-
-        time.sleep(5)
-        raise SystemExit
 
 
 def pre_parse(args, parser: argparse.ArgumentParser):
@@ -526,8 +522,15 @@ def get_item(ware_ids):
         else:
             print('Du har angivet tekst hvor du skal angive en mængde')
             return None, 0
+    has_space = False
+    # check if all items in the item_id split on space are either in shorthands or is a valid item
+    if ' ' in item_id:
+        split_items = item_id.split(' ')
+        if any(((x in SHORTHANDS) or (is_int(x) and x in ware_ids)) for x in split_items):
+            has_space = True
+            return item_id, 1
 
-    if not (item_id in SHORTHANDS) and (not is_int(item_id) or item_id not in ware_ids):
+    if not (item_id in SHORTHANDS) and (has_space or (not is_int(item_id) or item_id not in ware_ids)):
         if item_id.lower() in CONSTANTS['exit_words']:
             return 'exit', 0
 
@@ -549,13 +552,33 @@ def user_buy(user):
         )
         print_wares(wares)
         print('')
+        global is_strandvejen
         while True:
             item, count = get_item([x[0] for x in wares])
-            if item in CONSTANTS['exit_words']:
-                raise SystemExit
-            elif item is None:
-                continue
-            sale(user, item, count)
+            if ' ' in item:
+                items = item.split(' ')
+                # Check if any of the items in items is in the constant exit words
+                if any(x in CONSTANTS['exit_words'] for x in items):
+                    raise SystemExit
+                for purchase in Counter(items).items():
+                    sale(user, purchase[0], purchase[1])
+                if is_strandvejen:
+                    import time
+
+                    time.sleep(5)
+                    raise SystemExit
+
+            else:
+                if item in CONSTANTS['exit_words']:
+                    raise SystemExit
+                elif item is None:
+                    continue
+                sale(user, item, count)
+                if is_strandvejen:
+                    import time
+
+                    time.sleep(5)
+                    raise SystemExit
     else:
         print_no_user_help(user)
 
@@ -565,8 +588,8 @@ def no_info_buy():
     user, purchases = get_user_validated()
     # If wares exists make a sale on every ware
     if purchases:
-        for ware in purchases:
-            sale(user, ware[0])
+        for purchase in Counter(purchases).items():
+            sale(user, purchase[0], purchase[1])
     else:
         user_buy(user)
 
@@ -802,8 +825,13 @@ def main():
             if args.money:
                 get_qr(args.user, args.money)
             elif purchases:
-                for ware in purchases:
-                    sale(args.user, ware)
+                for purchase in Counter(purchases).items():
+                    sale(args.user, purchase[0], purchase[1])
+                if is_strandvejen:
+                    import time
+
+                    time.sleep(5)
+                    raise SystemExit
             else:
                 user_buy(args.user)
         else:
