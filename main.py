@@ -393,6 +393,37 @@ def parse_split_multibuy(itm):
     return itm, count
 
 
+# Parse the table from stregsystemet that represents the scoreboard for a user
+def parse_scoreboard(content):
+    content = (
+        re.search(r'<table class="ranking">(.+?)</table>', content, re.DOTALL)
+        .group(1)
+        .replace('  ', '')
+        .replace('\n', '')
+    )
+    headers = re.findall(r'<th class="ranking">(.+?)</th>', content)
+    fields = re.findall(r'<td class="ranking">(.+?)</td>', content)
+    return headers, fields[len(headers) :], fields[: len(headers)]
+
+
+def format_scoreboard(triple):
+    print('{:<20} {:>10} {:>10}'.format(*triple))
+
+
+def get_scoreboard():
+
+    global user_id
+    r = requests.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/user/{user_id}/rank", verify=False)
+    if r.status_code != 200:
+        __builtins__.print('Noget gik galt.', r.status_code, r.url)
+        raise SystemExit(r.status_code)
+    items = parse_scoreboard(r.text)
+    print('{:<20} {:>10} {:>10}'.format('Navn', 'Gennemsnit', 'Rank'))
+    print('-' * 42)
+    for i in range(len(items[0])):
+        format_scoreboard((items[0][i], items[1][i], items[2][i]))
+
+
 def sale(user, itm, count=1):
     if int(count) <= 0:
         print('Du kan ikke købe negative mængder af varer.')
@@ -502,6 +533,7 @@ def parse(args, parser: argparse.ArgumentParser):
     )
     parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
     parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
+    parser.add_argument('-r', '--rank', action='store_true', help='Shows your rank in different categories')
 
     args = parser.parse_args(args)
     return args
@@ -795,6 +827,11 @@ def main():
                     f.write(f"user={args.user}\n")
                     f.write(f"emoji_support={emoji_support}\n")
                     f.write('plugin_dir=')
+
+    if args.rank:
+        test_user(args.user)
+        get_scoreboard()
+        return
 
     if args.user and args.product:
         if test_user(args.user):
