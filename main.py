@@ -239,11 +239,18 @@ def get_wares():
         raise SystemExit(1)
 
     body = r.text
-    item_id_list = re.findall(r'<td>(\d+)</td>', body)
+    item_id_list = re.findall(r'\d+ / \w+', body)
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+ kr)</td>', body)
 
-    item_name_list = [x for x in item_name_list if not is_int(x)]
+    item_name_list = [x for x in item_name_list if x not in item_id_list]
+    global SHORTHANDS
+
+    # use dict comprehension to create a dictionary of item_id: item_name
+    SHORTHANDS = SHORTHANDS | {
+        x.split(" / ")[1].lower(): int(x.split(" / ")[0]) for x in item_id_list if len(x.split(" / ")) > 1
+    }
+    item_id_list = [x.split(' ')[0] for x in item_id_list]
 
     session.close()
     wares = []
