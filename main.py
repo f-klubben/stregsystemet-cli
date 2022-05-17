@@ -247,9 +247,9 @@ def get_wares():
     global SHORTHANDS
 
     # use dict comprehension to create a dictionary of item_id: item_name
-    SHORTHANDS = SHORTHANDS | {
-        x.split(" / ")[1].lower(): int(x.split(" / ")[0]) for x in item_id_list if len(x.split(" / ")) > 1
-    }
+    SHORTHANDS.update(
+        {x.split(" / ")[1].lower(): int(x.split(" / ")[0]) for x in item_id_list if len(x.split(" / ")) > 1}
+    )
     item_id_list = [x.split(' ')[0] for x in item_id_list]
 
     session.close()
