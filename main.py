@@ -33,7 +33,7 @@ CONSTANTS = {
 if sys.argv[0] == './main.py':
     print('You are running the script in debug mode.')
     CONSTANTS['url'] = 'http://localhost:8000'
-    CONSTANTS['room'] = '10'
+    CONSTANTS['room'] = '1'
     CONSTANTS['debug'] = True
 
 is_windows = sys.platform == "win32"
