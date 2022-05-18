@@ -33,7 +33,7 @@ CONSTANTS = {
 if sys.argv[0] == './main.py':
     print('You are running the script in debug mode.')
     CONSTANTS['url'] = 'http://localhost:8000'
-    CONSTANTS['room'] = '1'
+    CONSTANTS['room'] = '10'
     CONSTANTS['debug'] = True
 
 is_windows = sys.platform == "win32"
@@ -183,7 +183,7 @@ special_months = [4, 10, 12]
 
 if CONSTANTS['debug']:
     print(f'MONTH={_date.month}')
-    print(f'PRINTABLE={printables[_date.month]}')
+    print(f'PRINTABLE={printables.get(_date.month, "")}')
 
 
 def print(*args, **kwargs):
@@ -238,19 +238,22 @@ def get_wares():
         print('Could not fetch wares from Stregsystement...')
         raise SystemExit(1)
 
-    body = r.text
-    item_id_list = re.findall(r'\d+ / \w+', body)
+    body = re.sub(r'\s{2,}', '', r.text)
+    item_id_list = re.findall(r'<td>(\d+)( / \w+)?</td>', body)
     item_name_list = re.findall(r'<td>(.+?)</td>', body)
     item_price_list = re.findall(r'<td align="right">(\d+\.\d+ kr)</td>', body)
 
-    item_name_list = [x for x in item_name_list if x not in item_id_list]
+    item_name_list = [x for x in item_name_list if x not in [f'{y[0]}{y[1]}' for y in item_id_list]]
+    item_name_list = [x.replace('<br>', ' - ') for x in item_name_list]
+    # Filter out the items that are center html tagged
+    item_name_list = [x for x in item_name_list if re.match(r'<\w+\d+>', x) is not None or not x.startswith('<')]
     global SHORTHANDS
 
     # use dict comprehension to create a dictionary of item_id: item_name
     SHORTHANDS.update(
-        {x.split(" / ")[1].lower(): int(x.split(" / ")[0]) for x in item_id_list if len(x.split(" / ")) > 1}
+        {x[1].replace(' / ', '').lower(): int(x[0]) for x in item_id_list if len(x[1].replace(' / ', '')) > 1}
     )
-    item_id_list = [x.split(' ')[0] for x in item_id_list]
+    item_id_list = [x[0] for x in item_id_list]
 
     session.close()
     wares = []
