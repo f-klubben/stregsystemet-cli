@@ -1,2 +1,3 @@
 # only required for formatting, run `black --target-version py37 --line-length 120 --skip-string-normalization main.py`
 black>=21.9b0
+requests>=2.24.0
