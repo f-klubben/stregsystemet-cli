@@ -91,7 +91,13 @@ SHORTHANDS = {
 
 try:
     if not os.path.exists(os.path.expanduser('~/.sts-wares')):
-        SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+        SHORTHANDS.update(
+            json.loads(
+                requests.get(
+                    f'{CONSTANTS["url"]}/api/products/named_products', headers=referer_header, verify=False
+                ).text
+            )
+        )
         time = datetime.datetime.now()
         with open(os.path.expanduser('~/.sts-wares'), 'a') as f:
             f.writelines([str(time) + '\n', str(SHORTHANDS)])
@@ -103,7 +109,13 @@ try:
             if date_ + datetime.timedelta(days=7) < datetime.datetime.now():
                 if CONSTANTS['debug']:
                     print('Updating SHORTHANDS')
-                SHORTHANDS = json.loads(requests.get(f'{CONSTANTS["url"]}/api/products/named_products').text)
+                SHORTHANDS.update(
+                    json.loads(
+                        requests.get(
+                            f'{CONSTANTS["url"]}/api/products/named_products', headers=referer_header, verify=False
+                        ).text
+                    )
+                )
                 date_ = datetime.datetime.now()
         with open(os.path.expanduser('~/.sts-wares'), 'w') as f:
             f.writelines([str(date_) + '\n', str(SHORTHANDS)])
