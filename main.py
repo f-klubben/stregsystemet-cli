@@ -860,6 +860,9 @@ Du har {user.balance} stregdollar.
                         self.quickbuy()
 
         print(self.get_greeting(self._user_manager.get_user()))
+        print(
+            "Hvad ønsker at købe i Stregsystemet? (Skriv en af [':q', 'exit', 'quit', 'q'] for at komme ud af interfacet)"
+        )
         print(self.get_catalogue())
         print('')
         self.enter_shop_loop()
@@ -935,6 +938,10 @@ if __name__ == '__main__':
     arg_array = sys.argv[1::]
     _parser = argparse.ArgumentParser(add_help=False)
     _args = pre_parse(arg_array, _parser)
+    if has_version_difference():
+        __builtins__.print(
+            "Der er en opdatering til STS. Hent den fra GitHub eller kør sts med --update.", file=sys.stderr
+        )
 
     sts = Stregsystem(configuration, _args, arg_array)
     if not sts.check_user_exists(configuration.get_user()):
