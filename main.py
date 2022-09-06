@@ -921,7 +921,7 @@ def parse(args, parser: argparse.ArgumentParser):
     parser.add_argument(
         '-s', '--setup', action='store_true', help='Creates a .sts at /home/<user> storing your account username'
     )
-    parser.add_argument('product', type=str, nargs='?', help="Specifies the product to buy")
+    parser.add_argument('product', type=str, nargs='*', help="Specifies the product to buy")
     parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
     parser.add_argument('-r', '--rank', action='store_true', help='Shows your rank in different categories')
 
