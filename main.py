@@ -359,6 +359,9 @@ class Stregsystem:
                 raise SystemExit()
             print(user_manager.get_ranking(request_handler))
 
+        def get_user(self):
+            return self.args.user
+
     class RequestHandler:
         cookies: dict
 
@@ -522,18 +525,20 @@ class Stregsystem:
             )
 
         def get_ranking(self, request_handler: RequestHandler):
+            ret_val = f'Ranking for {self.user.username}\n\n'
             if not self.user.user_id:
-                print('den angivne bruger har ikke noget ID. Afslutter')
+                ret_val += 'den angivne bruger har ikke noget ID. Afslutter\n'
                 raise SystemExit(1)
             r = request_handler.get(f"{CONSTANTS['url']}/{CONSTANTS['room']}/user/{self.get_user_id()}/rank")
             if r.status_code != 200:
                 __builtins__.print('Noget gik galt.', r.status_code, r.url)
                 raise SystemExit(r.status_code)
             items = self.parse_scoreboard(r.text)
-            print('{:<20} {:>10} {:>10}'.format('Navn', 'Gennemsnit', 'Rank'))
-            print('-' * 42)
+            ret_val += '{:<20} {:>10} {:>10}'.format('Navn', 'Gennemsnit', 'Rank') + '\n'
+            ret_val += ('-' * 42) + '\n'
             for i in range(len(items[0])):
-                self.format_scoreboard((items[0][i], items[1][i], items[2][i]))
+                ret_val += self.format_scoreboard((items[0][i], items[1][i], items[2][i])) + '\n'
+            return ret_val
 
         def parse_scoreboard(self, content):
             content = (
@@ -546,8 +551,8 @@ class Stregsystem:
             fields = re.findall(r'<td class="ranking">(.+?)</td>', content)
             return headers, fields[len(headers) :], fields[: len(headers)]
 
-        def format_scoreboard(self, triple):
-            print('{:<20} {:>10} {:>10}'.format(*triple))
+        def format_scoreboard(self, triple) -> str:
+            return '{:<20} {:>10} {:>10}'.format(*triple)
 
     products: dict[int, Product] = {}
     shorthands: dict[str, int] = {}
@@ -585,6 +590,7 @@ class Stregsystem:
                     plugin.pre_argparse(parser, CONSTANTS)
         self.args = parse(self.raw_args, parser)
         self._argument_handler = self.ArgumentHandler(self.args, self.shorthands, self.products)
+        self.determine_user()
         self._argument_handler.handle_stopping(self._user_manager, self._request_handler)
 
     def check_user_exists(self, username) -> bool:
@@ -705,6 +711,15 @@ Du kan foretage indbetaling via MobilePay. Du har {self._user_manager.get_balanc
             date = datetime.datetime.fromisoformat(f.readline().strip())
             self.shorthands = json.loads(f.readline().replace('\'', '"'))
             return date, self.shorthands
+
+    def determine_user(self):
+        if self._argument_handler.get_user():
+            self._user_manager.set_user(self._argument_handler.get_user(), self._request_handler)
+        elif not sts.check_user_exists(configuration.get_user()):
+            username = sts.prompt_user()
+            sts.set_user(username)
+        else:
+            sts.set_user(configuration.get_user())
 
     def get_greeting(self, user: User) -> str:
         return (
@@ -868,6 +883,7 @@ Du har {user.balance} stregdollar.
         self.enter_shop_loop()
 
     def start_shop(self) -> None:
+
         if self._argument_handler.has_products():
             self.quickbuy()
         else:
@@ -944,11 +960,6 @@ if __name__ == '__main__':
         )
 
     sts = Stregsystem(configuration, _args, arg_array)
-    if not sts.check_user_exists(configuration.get_user()):
-        username = sts.prompt_user()
-        sts.set_user(username)
-    else:
-        sts.set_user(configuration.get_user())
     sts.load()
     sts.start_shop()
 
