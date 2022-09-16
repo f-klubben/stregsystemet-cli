@@ -592,7 +592,6 @@ class Stregsystem:
         self.args = parse(self.raw_args, parser)
         self._argument_handler = self.ArgumentHandler(self.args, self.shorthands, self.products)
         self._argument_handler.handle_stopping(self, self._user_manager, self._request_handler)
-        self.determine_user()
 
     def check_user_exists(self, username) -> bool:
         return self._user_manager.check_user_exists(username, self._request_handler)
