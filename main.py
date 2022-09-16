@@ -274,10 +274,11 @@ class Stregsystem:
             self.args: argparse.Namespace = args
             self.shorthands: dict[str, int] = shorthands
 
-        def handle_stopping(self, user_manager, request_handler) -> None:
+        def handle_stopping(self, sts: Stregsystem, user_manager, request_handler) -> None:
             if self.args.update:
                 update_script()
                 raise SystemExit(0)
+            sts.determine_user()
             if self.args.money:
                 self.mobilepay(self.args.money, user_manager, request_handler)
                 raise SystemExit(0)
@@ -590,8 +591,8 @@ class Stregsystem:
                     plugin.pre_argparse(parser, CONSTANTS)
         self.args = parse(self.raw_args, parser)
         self._argument_handler = self.ArgumentHandler(self.args, self.shorthands, self.products)
+        self._argument_handler.handle_stopping(self, self._user_manager, self._request_handler)
         self.determine_user()
-        self._argument_handler.handle_stopping(self._user_manager, self._request_handler)
 
     def check_user_exists(self, username) -> bool:
         return self._user_manager.check_user_exists(username, self._request_handler)
