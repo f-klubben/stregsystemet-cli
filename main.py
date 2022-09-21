@@ -508,16 +508,17 @@ class Stregsystem:
                 and 'Det lader ikke til, at du er registreret som aktivt medlem af F-klubben' not in user_response.text
             )
 
-        def prompt_user(self, request_handler: RequestHandler) -> str:
+        def prompt_user(self, request_handler: RequestHandler) -> tuple[str, list[str]]:
             try:
-                username = input('Indtast dit brugernavn: ')
-                while not self.check_user_exists(username, request_handler):
-                    self.print_no_user_help(username)
-                    username = input('Indtast dit brugernavn: ')
+                response = input('Indtast dit brugernavn: ')
+                while not self.check_user_exists(response.split(' ')[0], request_handler):
+                    self.print_no_user_help(response.split(' ')[0])
+                    response = input('Indtast dit brugernavn: ')
             except (EOFError, KeyboardInterrupt):
                 raise SystemExit()
-
-            return username
+            username = response.split(' ')[0]
+            wares = response.split(' ')[1:]
+            return username, wares
 
         def print_no_user_help(self, user):
             print(
@@ -629,7 +630,7 @@ class Stregsystem:
 
         return plugins
 
-    def prompt_user(self) -> str:
+    def prompt_user(self) -> tuple[str, list[str]]:
         return self._user_manager.prompt_user(self._request_handler)
 
     def make_purchase(self, products: dict[str, int]) -> tuple[bool, str]:
@@ -716,8 +717,12 @@ Du kan foretage indbetaling via MobilePay. Du har {self._user_manager.get_balanc
         if self._argument_handler.get_user():
             self._user_manager.set_user(self._argument_handler.get_user(), self._request_handler)
         elif not sts.check_user_exists(configuration.get_user()):
-            username = sts.prompt_user()
+            username, wares = sts.prompt_user()
             sts.set_user(username)
+            if wares:
+                sts.buy_multiple_items(wares)
+                sts.handle_kiosk()
+                raise SystemExit
         else:
             sts.set_user(configuration.get_user())
 
