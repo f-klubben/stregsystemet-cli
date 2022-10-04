@@ -30,6 +30,7 @@ CONSTANTS = {
     'room': '10',
     'exit_words': [':q', 'exit', 'quit', 'q'],
     'update_url': 'https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/main.py',
+    'plugin_url': 'https://raw.githubusercontent.com/f-klubben/stregsystemet-cli/master/community_plugins/$$REPLACEME$$.py',
     'debug': False,
     'printables': {
         4: '\U0001F414',  # Chicken emoji
@@ -154,7 +155,7 @@ class Configuration:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def write(self, config_file: str):
+    def write(self):
         paths = [path for path in self._dirs if os.path.exists(path)]
         config = configparser.ConfigParser()
         config['sts'] = self.__dict__()
@@ -297,6 +298,53 @@ class Stregsystem:
             if self.args.rank:
                 self.ranking(user_manager, request_handler)
                 raise SystemExit(0)
+            if self.args.pluginstall:
+                self.install_plugin(self.args.pluginstall, Configuration(), request_handler)
+                raise SystemExit(0)
+            if self.args.pluguninstall:
+                self.uninstall_plugin(self.args.pluguninstall, Configuration())
+                raise SystemExit(0)
+
+        def get_plugin_dir(self, config: Configuration):
+            if config.plugin_dir and os.path.exists(config.plugin_dir):
+                return config.plugin_dir
+
+            # Prompt for setup of plugins. The user wants to install anyways
+            __builtins__.print('You do not have a plugin directory set up.')
+            dirr = input('Please enter a valid plugin directory')
+            while not os.path.exists(dirr):
+                __builtins__.print('You do not have a plugin directory set up.')
+                dirr = input('Please enter a valid plugin directory')
+
+            config.plugin_dir = dirr
+            config.write()
+            return dirr
+
+        def install_plugin(self, plugin_name: str, configuration: Configuration, request_handler: RequestHandler):
+            def test_for_plugin_online(plugin_name: str, request_handler: RequestHandler):
+                req = request_handler.get(CONSTANTS['plugin_url'].replace('$$REPLACEME$$', plugin_name))
+                return req.status_code == 200
+
+            def download_plugin(plugin: str, dirr: str, req_handler: RequestHandler):
+                req = req_handler.get(CONSTANTS['plugin_url'].replace('$$REPLACEME$$', plugin))
+                with open(f'{dirr}{plugin}.py', 'w') as plg:
+                    plg.write(req.text)
+
+            dirr = self.get_plugin_dir(configuration)
+            if test_for_plugin_online(plugin_name, request_handler):
+                existed = os.path.exists(f'{dirr}{plugin_name}.py')
+                download_plugin(plugin_name, dirr, request_handler)
+                print('Plugin', ('installed' if not existed else 'reinstalled'))
+            else:
+                print(f'The plugin "{plugin_name}" does not exist as a community plugin.')
+
+        def uninstall_plugin(self, plugin_name: str, configuration: Configuration):
+            dirr = self.get_plugin_dir(configuration)
+            if os.path.exists(f'{dirr}{plugin_name}.py'):
+                os.remove(f'{dirr}{plugin_name}.py')
+                print('Plugin removed')
+            else:
+                print(plugin_name, 'is not an installed plugin')
 
         def has_products(self) -> bool:
             return self.args.product is not None and len(self.args.product) > 0
@@ -344,7 +392,7 @@ class Stregsystem:
             configuration.user = user
             configuration.emoji_support = emoji_support
             configuration.plugin_dir = ''
-            configuration.write('~/.sts')
+            configuration.write()
 
         def balance(self, user_manager: UserManager, request_handler: RequestHandler) -> None:
             user = user_manager.get_username()
@@ -948,6 +996,22 @@ def parse(args, parser: argparse.ArgumentParser):
     parser.add_argument('product', type=str, nargs='*', help="Specifies the product to buy")
     parser.add_argument('-v', '--verbose', action='store_true', help='Prints information about the running script')
     parser.add_argument('-r', '--rank', action='store_true', help='Shows your rank in different categories')
+    parser.add_argument(
+        '-pi',
+        '--pluginstall',
+        default=None,
+        nargs='?',
+        dest='pluginstall',
+        help='Install a plugin from the community plugins. https://github.com/f-klubben/stregsystemet-cli/tree/master/community_plugins',
+    )
+    parser.add_argument(
+        '-pu',
+        '--pluguninstall',
+        default=None,
+        nargs='?',
+        dest='pluguninstall',
+        help='Remove a plugin from your installation of STS.',
+    )
 
     args = parser.parse_args(args)
     return args
