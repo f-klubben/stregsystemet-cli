@@ -74,14 +74,16 @@ def print(*args, **kwargs):
         # CPU Heater. Doesn't matter. Still faster than the actual stregsystem
         print_prob = (
             ((random() * 10) / (len(' '.join(map(str, args))) * random() + 0.1) * random())
-            * ((_date.day / 100) + 1)
-            * 0.7
+            * ((_date.day / 31) + 1)
+            * 0.4
             * (lines_counted * 0.15)
         )
+        if CONSTANTS['debug']:
+            __builtins__.print(f'PRINT_PROB={print_prob}')
         print_prob = print_prob / int(print_prob) if int(print_prob) >= 1 else print_prob
 
         batted = False
-        for i in range(len(msg)):
+        for i in range(6, len(msg)):
             if print_prob > random() and random() > random() and bat_amount > 0 and not batted:
                 if msg[i] == '-' or msg[i].isdigit():
                     if random() > 0.04:
@@ -872,6 +874,9 @@ Du har {user.balance} stregdollar.
             raise SystemExit()
 
     def enter_shop_loop(self) -> None:
+        global _date, bat_amount
+        if CONSTANTS['debug']:
+            __builtins__.print('Bats printed:', (_date.day - bat_amount))
         while True:
             try:
                 items = input('Id> ').strip()
@@ -931,7 +936,7 @@ Du har {user.balance} stregdollar.
         print(
             "Hvad ønsker at købe i Stregsystemet? (Skriv en af [':q', 'exit', 'quit', 'q'] for at komme ud af interfacet)"
         )
-        print(self.get_catalogue())
+        [print(line) for line in self.get_catalogue().split('\n')]
         print('')
         self.enter_shop_loop()
 
