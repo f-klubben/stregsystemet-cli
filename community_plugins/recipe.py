@@ -15,6 +15,8 @@ Eksempel: --recipe speedball
 
 speedball: Halv kaffemonner og halv limfjordsporter.
            Køber 1 x 1900, 1 x 42
+milktea: Te med et skud mælk (mandemælk)
+              Køber 1 x 32, 1x 1904
 '''
     )
 
