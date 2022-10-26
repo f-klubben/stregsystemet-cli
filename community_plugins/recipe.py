@@ -32,6 +32,10 @@ def run(wares: list, args: list, arg_array: list, shorthands: dict, constants: d
         args.product.append('1900')
         args.product.append('42')
 
+    if args.product and 'milktea' in args.product:
+        args.product.remove('milktea')
+        args.product.append('32')
+        args.product.append('1904')
 
 # This block runs at the very end of main and may not
 # be reached, due to some 'raise systemExit'
