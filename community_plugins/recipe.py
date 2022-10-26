@@ -10,7 +10,7 @@ def pre_argparse(parser: argparse.ArgumentParser, constants: dict) -> None:
 def print_recipes():
     print(
         '''
-For at købe et recipe, skal navnet på recipe skrives som produkt, efter --recipe.
+For at købe en recipe, skal navnet på recipe skrives som produkt, efter --recipe.
 Eksempel: --recipe speedball
 
 speedball: Halv kaffemonner og halv limfjordsporter.
