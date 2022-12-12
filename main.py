@@ -42,7 +42,7 @@ CONSTANTS = {
 if sys.argv[0] == './main.py':
     print('You are running the script in debug mode.')
     CONSTANTS['url'] = 'http://localhost:8000'
-    CONSTANTS['room'] = '1'
+    CONSTANTS['room'] = '10'
     CONSTANTS['debug'] = True
 
 
@@ -834,11 +834,22 @@ Du har {user.balance} stregdollar.
             self.add_product(item_id_list[i][0], item_name_list[i], float(item_price_list[i]))
 
     def quickbuy(self, items=None) -> None:
+        if not self.disable_plugins:
+            for plugin in self.plugins:
+                if plugin.pre_argparse:
+                    plugin.run(
+                        self.products,
+                        self._argument_handler.args,
+                        self.raw_args,
+                        self.shorthands,
+                        CONSTANTS,
+                    )
+
         if items is None:
             success, output = self.make_purchase(self._argument_handler.get_products())
         else:
             success, output = self.make_purchase(items)
-        print(output)
+
         if not self.disable_plugins:
             for plugin in self.plugins:
                 if plugin.post_run:
@@ -850,6 +861,7 @@ Du har {user.balance} stregdollar.
                         CONSTANTS,
                     )
 
+        print(output)
         self.handle_kiosk()
         if success:
             raise SystemExit(0)
