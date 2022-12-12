@@ -213,7 +213,7 @@ class Product:
 
     def format_str(self, id_width, name_width, price_width):
         if re.match(r'<\w+\d*>', self.name):
-            self.name = re.sub(r'</?\w+?\d*?>', '', self.name)
+            self.name = re.sub(r'</?\w+?\d*?>', '', self.name).strip()
             return (
                 f'\u001B[31m{self.id:<{id_width}} {self.name:<{name_width}} {self.price:>{price_width}.2f} kr.\u001B[0m'
             )
@@ -221,12 +221,13 @@ class Product:
         return f'{self.id:<{id_width}} {self.name:<{name_width}} {self.price:>{price_width}.2f} kr.'
 
     def __getitem__(self, indicies):
+        self.format_str(len(self.id), len(self.name), len(str(self.price)))
         if indicies == 0:
             return self.id
         if indicies == 1:
             return self.name
         if indicies == 2:
-            return self.price
+            return f'{self.price:>.2f} kr.'
 
 
 @dataclass
